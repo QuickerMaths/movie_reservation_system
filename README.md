@@ -1,6 +1,7 @@
 # movie_reservation_system
 
-This will be my implementation of a movie reservation system inspired by thehttps://roadmap.sh/projects/movie-reservation-system
+This will be my implementation of a movie reservation system inspired by the [roadmap.sh](https://roadmap.sh/projects/movie-reservation-system
+) project idea.
 
 ## Features
 * Admins perform CRUD operations on movies
