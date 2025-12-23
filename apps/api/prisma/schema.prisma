@@ -1,11 +1,14 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider   = "prisma-client"
+  output     = "../generated/prisma"
+  engineType = "client"
 }
 
 datasource db {
   provider = "postgresql"
 }
+
+// TODO: Implement missing constraints, https://github.com/prisma/prisma/issues/3388 for more details.
 
 model movie_genres {
   genre_id              Int                     @id @default(autoincrement())
