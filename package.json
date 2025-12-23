@@ -1,0 +1,23 @@
+{
+  "name": "movie-reservation-system",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Monorepo for Movie Reservation System",
+  "scripts": {
+    "dev": "dotenv -e .env -- pnpm -r --parallel run dev",
+    "build": "dotenv -e .env -- pnpm -r --parallel run build",
+    "lint": "pnpm -r --parallel run lint",
+    "test": "pnpm -r --parallel run test",
+    "db:up": "docker-compose up -d",
+    "db:down": "docker-compose down",
+    "db:restart": "docker-compose down && docker-compose up -d",
+    "clean": "rm -rf node_modules apps/*/node_modules apps/*/.next apps/*/dist"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^11.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
