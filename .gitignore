@@ -44,3 +44,5 @@ postgres_data/
 .nyc_output
 .vercel
 *.pem
+
+apps/api/generated/prisma

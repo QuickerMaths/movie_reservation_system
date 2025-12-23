@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model movie_genres {
+  genre_id              Int                     @id @default(autoincrement())
+  name                  String                  @db.VarChar(100)
+  parent_genre_id       Int?
+  movie_genres          movie_genres?           @relation("movie_genresTomovie_genres", fields: [parent_genre_id], references: [genre_id], onDelete: NoAction, onUpdate: NoAction)
+  other_movie_genres    movie_genres[]          @relation("movie_genresTomovie_genres")
+  movies                movies[]
+  regular_user_profiles regular_user_profiles[]
+}
+
+model movie_rooms {
+  movie_room_id           Int     @id @default(autoincrement())
+  room_number             String  @db.VarChar(50)
+  cleaning_buffer_minutes Int?    @default(30)
+  seats                   seats[]
+  shows                   shows[]
+}
+
+model movies {
+  movie_id         Int           @id @default(autoincrement())
+  title            String        @db.VarChar(255)
+  description      String?
+  poster_image_url String?       @db.VarChar(500)
+  cached_rating    Decimal?      @default(0.00) @db.Decimal(3, 2)
+  duration_minutes Int
+  last_show_date   DateTime?     @db.Date
+  is_recommended   Boolean?      @default(false)
+  genre_id         Int?
+  movie_genres     movie_genres? @relation(fields: [genre_id], references: [genre_id], onDelete: NoAction, onUpdate: NoAction)
+  ratings          ratings[]
+  shows            shows[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model ratings {
+  rate_id    Int       @id @default(autoincrement())
+  rating     Int?
+  user_id    Int?
+  movie_id   Int?
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  movies     movies?   @relation(fields: [movie_id], references: [movie_id], onDelete: Cascade, onUpdate: NoAction)
+  users      users?    @relation(fields: [user_id], references: [user_id], onUpdate: NoAction)
+}
+
+model regular_user_profiles {
+  user_id            Int           @id
+  phone_number       String?       @db.VarChar(20)
+  newsletter_opt_in  Boolean?      @default(false)
+  preferred_genre_id Int?
+  movie_genres       movie_genres? @relation(fields: [preferred_genre_id], references: [genre_id], onDelete: NoAction, onUpdate: NoAction)
+  users              users         @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model reservations {
+  reservation_id   Int       @id @default(autoincrement())
+  reservation_date DateTime? @default(now()) @db.Timestamp(6)
+  status           String?   @db.VarChar(20)
+  user_id          Int?
+  show_id          Int?
+  shows            shows?    @relation(fields: [show_id], references: [show_id], onDelete: NoAction, onUpdate: NoAction)
+  users            users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  tickets          tickets[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model roles {
+  role_id     Int           @id @default(autoincrement())
+  name        String        @default("REGULAR") @db.VarChar(20)
+  users_roles users_roles[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model seat_types {
+  seat_type_id  Int     @id @default(autoincrement())
+  name          String  @db.VarChar(20)
+  default_price Decimal @db.Decimal(10, 2)
+  seats         seats[]
+}
+
+model seats {
+  seat_id       Int         @id @default(autoincrement())
+  row_label     String      @db.Char(1)
+  seat_number   Int
+  movie_room_id Int
+  seat_type_id  Int?
+  movie_rooms   movie_rooms @relation(fields: [movie_room_id], references: [movie_room_id], onDelete: Cascade, onUpdate: NoAction)
+  seat_types    seat_types? @relation(fields: [seat_type_id], references: [seat_type_id], onDelete: NoAction, onUpdate: NoAction)
+  tickets       tickets[]
+
+  @@unique([movie_room_id, row_label, seat_number])
+}
+
+model shows {
+  show_id         Int            @id @default(autoincrement())
+  start_timestamp DateTime       @db.Timestamp(6)
+  movie_room_id   Int?
+  movie_id        Int?
+  reservations    reservations[]
+  movies          movies?        @relation(fields: [movie_id], references: [movie_id], onDelete: Cascade, onUpdate: NoAction)
+  movie_rooms     movie_rooms?   @relation(fields: [movie_room_id], references: [movie_room_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model tickets {
+  ticket_id      Int          @id @default(autoincrement())
+  sold_price     Decimal      @db.Decimal(10, 2)
+  reservation_id Int
+  seat_id        Int
+  reservations   reservations @relation(fields: [reservation_id], references: [reservation_id], onDelete: Cascade, onUpdate: NoAction)
+  seats          seats        @relation(fields: [seat_id], references: [seat_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([reservation_id, seat_id])
+}
+
+model users {
+  user_id               Int                    @id @default(autoincrement())
+  first_name            String                 @db.VarChar(100)
+  last_name             String                 @db.VarChar(100)
+  email                 String                 @unique @db.VarChar(255)
+  password_hash         String                 @db.VarChar(255)
+  created_at            DateTime?              @default(now()) @db.Timestamp(6)
+  ratings               ratings[]
+  regular_user_profiles regular_user_profiles?
+  reservations          reservations[]
+  users_roles           users_roles[]
+}
+
+model users_roles {
+  user_id Int
+  role_id Int
+  roles   roles @relation(fields: [role_id], references: [role_id], onDelete: Cascade, onUpdate: NoAction)
+  users   users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, role_id])
+}
