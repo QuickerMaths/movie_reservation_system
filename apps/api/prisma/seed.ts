@@ -1,14 +1,7 @@
-import { PrismaClient } from '../generated/prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
 import { faker } from '@faker-js/faker';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
+import { PrismaService } from '../src/prisma.service';
 
-dotenv.config({ path: path.join(__dirname, '../../.env') });
-
-const connectionString = `${process.env.DATABASE_URL}`;
-const adapter = new PrismaPg({ connectionString });
-const prisma = new PrismaClient({ adapter, errorFormat: 'pretty' });
+const prisma = new PrismaService();
 
 async function main() {
   console.log('🌱 Starting database seed...');
