@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useMovies } from '../hooks/use-movies';
+import { useMovies } from '@/hooks/use-movies';
 
 export default function MovieGrid() {
   const { data: movies, isLoading, isError } = useMovies();

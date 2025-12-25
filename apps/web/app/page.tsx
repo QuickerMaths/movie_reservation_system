@@ -1,7 +1,7 @@
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
-import { fetchMovies } from './api/movies';
-import MovieGrid from '@/app/client-components/MovieGrid';
-import { getQueryClient } from '@/app/providers/get-query-client';
+import { fetchMovies } from '@/api/movies';
+import MovieGrid from '@/components/MovieGrid';
+import { getQueryClient } from '@/providers/get-query-client';
 
 export default async function Home() {
   const queryClient = getQueryClient();
