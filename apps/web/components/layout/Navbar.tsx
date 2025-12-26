@@ -14,7 +14,7 @@ const routes = [
     icon: Home,
   },
   {
-    href: '/', // We can change this to /movies later
+    href: '/movies',
     label: 'Movies',
     icon: Clapperboard,
   },
