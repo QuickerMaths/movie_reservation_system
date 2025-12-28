@@ -3,14 +3,13 @@ import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { PrismaService } from '../prisma.service';
 
-const prisma = new PrismaService();
-
 @Injectable()
 export class MoviesService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async create(createMovieDto: CreateMovieDto) {
-    return prisma.movies.create({
+    return this.prisma.movies.create({
       data: {
-        movie_id: createMovieDto.movieId,
         title: createMovieDto.title,
         description: createMovieDto.description,
         poster_image_url: createMovieDto.posterImageUrl,
@@ -27,7 +26,7 @@ export class MoviesService {
   // TODO: Implement filtering by genre, rating, etc.
 
   async findAll() {
-    return prisma.movies.findMany({
+    return this.prisma.movies.findMany({
       include: {
         movie_genres: true,
       },
@@ -38,7 +37,7 @@ export class MoviesService {
   }
 
   async findOne(id: number) {
-    return prisma.movies.findUnique({
+    return this.prisma.movies.findUnique({
       where: { movie_id: id },
       include: {
         movie_genres: true,
@@ -47,7 +46,7 @@ export class MoviesService {
   }
 
   async update(id: number, updateMovieDto: UpdateMovieDto) {
-    return prisma.movies.update({
+    return this.prisma.movies.update({
       where: { movie_id: id },
       data: {
         title: updateMovieDto.title,
@@ -63,7 +62,7 @@ export class MoviesService {
   }
 
   async remove(id: number) {
-    return prisma.movies.delete({
+    return this.prisma.movies.delete({
       where: { movie_id: id },
     });
   }
