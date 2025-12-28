@@ -6,16 +6,10 @@ import {
   IsBoolean,
   Min,
   IsNotEmpty,
-  IsDate,
-  IsNumber,
-  IsDecimal,
+  IsDateString,
 } from 'class-validator';
 
 export class CreateMovieDto {
-  @IsNumber()
-  @IsNotEmpty()
-  movieId: number;
-
   @IsString()
   @IsNotEmpty()
   title: string;
@@ -28,15 +22,11 @@ export class CreateMovieDto {
   @IsOptional()
   posterImageUrl?: string;
 
-  @IsDecimal()
-  @IsNotEmpty()
-  cachedRating: number;
-
   @IsInt()
   @Min(1)
   durationMinutes: number;
 
-  @IsDate()
+  @IsDateString()
   @IsNotEmpty()
   lastShowDate: Date;
 
