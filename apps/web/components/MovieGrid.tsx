@@ -18,17 +18,19 @@ export default function MovieGrid() {
     return <div className='text-red-500 text-center'>Error loading movies.</div>;
   }
 
+  // TODO: Add the rating stars below the title -> cached_rating
+
   return (
     <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8'>
       {movies.map((movie) => (
         <article
-          key={movie.movie_id}
+          key={movie.id}
           className='group bg-gray-900 rounded-lg overflow-hidden hover:scale-105 transition-transform duration-300 shadow-xl'
         >
           {/* Poster Image */}
           <div className='relative aspect-[2/3] w-full'>
             <Image
-              src={movie.poster_image_url || '/image_placeholder.png'}
+              src={movie.posterImageUrl || '/image_placeholder.png'}
               alt={movie.title}
               fill
               className='object-cover group-hover:opacity-80 transition-opacity'
@@ -41,15 +43,13 @@ export default function MovieGrid() {
             <div className='flex justify-between items-start mb-2'>
               <h3 className='text-xl font-bold truncate pr-2'>{movie.title}</h3>
               <span className='bg-gray-800 text-xs px-2 py-1 rounded text-gray-300 whitespace-nowrap'>
-                {movie.duration_minutes} min
+                {movie.durationMinutes != null ? `${movie.durationMinutes} min` : 'N/A'}
               </span>
             </div>
 
-            <p className='text-gray-400 text-sm line-clamp-2 mb-4'>{movie.description}</p>
-
             <div className='flex justify-between items-center mt-auto'>
               <span className='text-sm text-red-500 font-medium'>
-                {movie.movie_genres?.name || 'Genre'}
+                {movie.movieGenres.name || 'Genre'}
               </span>
               <button className='bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-full font-medium transition-colors'>
                 Book

@@ -1,8 +1,8 @@
-import { IMovie } from '@/types/movie';
+import { IMovieGirdItem } from '@/types/movie';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
-export async function fetchMovies(): Promise<IMovie[]> {
+export async function fetchMovies(): Promise<IMovieGirdItem[]> {
   const res = await fetch(`${API_URL}/movies`);
 
   if (!res.ok) {
