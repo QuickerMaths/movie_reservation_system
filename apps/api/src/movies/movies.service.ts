@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class MoviesService {
@@ -24,13 +24,19 @@ export class MoviesService {
   // TODO: Implement pagination
   // TODO: Implement filtering by genre, rating, etc.
 
-  async findAll() {
+  findAllMovieGridItems() {
     return this.prisma.movies.findMany({
-      include: {
-        movie_genres: true,
-      },
-      orderBy: {
-        title: 'asc',
+      select: {
+        movie_id: true,
+        title: true,
+        poster_image_url: true,
+        cached_rating: true,
+        duration_minutes: true,
+        movie_genres: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
   }
