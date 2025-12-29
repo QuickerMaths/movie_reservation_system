@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS movies
     poster_image_url VARCHAR(500),
     cached_rating    DECIMAL(3, 2) DEFAULT 0.00,
     duration_minutes INT          NOT NULL,
-    last_show_date   DATE,
+    last_show_date   DATE         NOT NULL,
     is_recommended   BOOLEAN       DEFAULT FALSE,
     genre_id         INT REFERENCES movie_genres (genre_id)
 );

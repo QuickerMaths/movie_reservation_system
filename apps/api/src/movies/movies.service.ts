@@ -7,25 +7,17 @@ import { PrismaService } from '../prisma/prisma.service';
 export class MoviesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createMovieDto: CreateMovieDto) {
-    return this.prisma.movies.create({
-      data: {
-        title: createMovieDto.title,
-        description: createMovieDto.description,
-        poster_image_url: createMovieDto.posterImageUrl,
-        duration_minutes: createMovieDto.durationMinutes,
-        last_show_date: createMovieDto.lastShowDate,
-        is_recommended: createMovieDto.isRecommended,
-        genre_id: createMovieDto.genreId,
-      },
-    });
-  }
-
   // TODO: Implement pagination
   // TODO: Implement filtering by genre, rating, etc.
 
   async findAllMovieGridItems() {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
     return this.prisma.movies.findMany({
+      where: {
+        last_show_date: { gt: startOfToday },
+      },
       select: {
         movie_id: true,
         title: true,
@@ -51,10 +43,14 @@ export class MoviesService {
   }
 
   async findRecommendedMovies(id: number) {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
     return this.prisma.movies.findMany({
       where: {
         is_recommended: true,
         NOT: { movie_id: id },
+        last_show_date: { gt: startOfToday },
       },
       select: {
         movie_id: true,
@@ -67,6 +63,20 @@ export class MoviesService {
             name: true,
           },
         },
+      },
+    });
+  }
+
+  async create(createMovieDto: CreateMovieDto) {
+    return this.prisma.movies.create({
+      data: {
+        title: createMovieDto.title,
+        description: createMovieDto.description,
+        poster_image_url: createMovieDto.posterImageUrl,
+        duration_minutes: createMovieDto.durationMinutes,
+        last_show_date: createMovieDto.lastShowDate,
+        is_recommended: createMovieDto.isRecommended,
+        genre_id: createMovieDto.genreId,
       },
     });
   }
