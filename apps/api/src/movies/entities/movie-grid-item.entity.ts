@@ -1,5 +1,6 @@
-import { Expose } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { Decimal } from '@prisma/client/runtime/client';
 
 export class MovieGridItemEntity {
   @Expose({ name: 'id' })
@@ -25,7 +26,8 @@ export class MovieGridItemEntity {
     example: 4.7,
     description: 'Cached average rating of the movie',
   })
-  cached_rating: any; // should be number, but Prisma returns Decimal type, and I can not transform it without causing TS errors
+  @Transform(({ value }) => (value as Decimal).toNumber())
+  cached_rating: number | Decimal;
 
   @Expose({ name: 'durationMinutes' })
   @ApiProperty({ name: 'durationMinutes', example: 136, description: 'Duration in minutes' })
