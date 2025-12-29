@@ -2,38 +2,39 @@ import { IMovieGirdItem, IMovieDetail } from '@/types/movie';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
-export async function fetchMovies(): Promise<IMovieGirdItem[]> {
-  const url = new URL('/movies', API_URL);
+/**
+ * Generic API Fetcher
+ * Handles URL construction, error parsing, and type casting.
+ */
+async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  const url = new URL(endpoint, API_URL);
 
-  const res = await fetch(url.toString());
+  const res = await fetch(url.toString(), options);
 
   if (!res.ok) {
     let errorMessage = `Error ${res.status}: ${res.statusText}`;
     try {
       const errorBody = await res.json();
       errorMessage = errorBody.message || errorMessage;
-    } catch {}
-
+    } catch {
+      // Ignore JSON parse errors on error responses
+    }
     throw new Error(errorMessage);
   }
 
-  return (await res.json()) as Promise<IMovieGirdItem[]>;
+  return res.json() as Promise<T>;
 }
 
-export async function fetchMovieDetailsById(id: string): Promise<IMovieDetail> {
-  const url = new URL(`/movies/${id}`, API_URL);
+// --- Exported API Methods ---
 
-  const res = await fetch(url.toString());
+export function fetchMovies() {
+  return apiFetch<IMovieGirdItem[]>('/movies');
+}
 
-  if (!res.ok) {
-    let errorMessage = `Error ${res.status}: ${res.statusText}`;
-    try {
-      const errorBody = await res.json();
-      errorMessage = errorBody.message || errorMessage;
-    } catch {}
+export function fetchMovieDetailsById(id: string) {
+  return apiFetch<IMovieDetail>(`/movies/${id}`);
+}
 
-    throw new Error(errorMessage);
-  }
-
-  return (await res.json()) as Promise<IMovieDetail>;
+export function fetchRecommendedMovies(id: string) {
+  return apiFetch<IMovieGirdItem[]>(`/movies/${id}/recommended`);
 }
