@@ -41,7 +41,7 @@ export class MoviesService {
     });
   }
 
-  async findOne(id: number) {
+  async findMovieDetailsById(id: number) {
     return this.prisma.movies.findUnique({
       where: { movie_id: id },
       include: {

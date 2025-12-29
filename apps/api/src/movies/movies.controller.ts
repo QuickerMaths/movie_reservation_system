@@ -15,6 +15,7 @@ import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { MovieGridItemEntity } from './entities/movie-grid-item.entity';
+import { MovieDetailEntity } from './entities/movie-detail.entity';
 
 @Controller('movies')
 export class MoviesController {
@@ -37,8 +38,12 @@ export class MoviesController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.moviesService.findOne(id);
+  @ApiOkResponse({ type: MovieDetailEntity })
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getMovieDetailsById(@Param('id', ParseIntPipe) id: number) {
+    const movieDetails = await this.moviesService.findMovieDetailsById(id);
+
+    return new MovieDetailEntity(movieDetails);
   }
 
   @Patch(':id')
