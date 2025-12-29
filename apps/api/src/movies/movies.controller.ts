@@ -46,6 +46,15 @@ export class MoviesController {
     return new MovieDetailEntity(movieDetails);
   }
 
+  @Get(':id/recommended')
+  @ApiOkResponse({ type: [MovieGridItemEntity] })
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getRecommendedMovies(@Param('id', ParseIntPipe) id: number) {
+    const recommendedMovies = await this.moviesService.findRecommendedMovies(id);
+
+    return recommendedMovies.map((m) => new MovieGridItemEntity(m));
+  }
+
   @Patch(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() updateMovieDto: UpdateMovieDto) {
     return this.moviesService.update(id, updateMovieDto);

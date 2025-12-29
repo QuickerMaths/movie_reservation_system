@@ -24,7 +24,7 @@ export class MoviesService {
   // TODO: Implement pagination
   // TODO: Implement filtering by genre, rating, etc.
 
-  findAllMovieGridItems() {
+  async findAllMovieGridItems() {
     return this.prisma.movies.findMany({
       select: {
         movie_id: true,
@@ -46,6 +46,27 @@ export class MoviesService {
       where: { movie_id: id },
       include: {
         movie_genres: true,
+      },
+    });
+  }
+
+  async findRecommendedMovies(id: number) {
+    return this.prisma.movies.findMany({
+      where: {
+        is_recommended: true,
+        NOT: { movie_id: id },
+      },
+      select: {
+        movie_id: true,
+        title: true,
+        poster_image_url: true,
+        cached_rating: true,
+        duration_minutes: true,
+        movie_genres: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
   }
