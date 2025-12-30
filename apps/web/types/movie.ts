@@ -4,9 +4,7 @@ export interface IMovieGirdItem {
   posterImageUrl: string | null;
   cachedRating: number;
   durationMinutes: number | null;
-  movieGenres: {
-    name: string;
-  };
+  genre: string;
 }
 
 export interface IMovieDetail {
@@ -18,7 +16,5 @@ export interface IMovieDetail {
   durationMinutes: number | null;
   lastShowDate: string | null;
   isRecommended: boolean;
-  movieGenres: {
-    name: string;
-  };
+  genre: string;
 }
