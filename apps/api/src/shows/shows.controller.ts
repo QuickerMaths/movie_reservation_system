@@ -1,34 +1,31 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  Param,
+  Query,
+  ParseIntPipe,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ShowsService } from './shows.service';
-import { CreateShowDto } from './dto/create-show.dto';
-import { UpdateShowDto } from './dto/update-show.dto';
+import { ApiOkResponse, ApiQuery } from '@nestjs/swagger';
+import { ShowsMovieDetailEntity } from './entities/shows-movie-detail.entity';
+import { GetShowsDto } from './dto/get-shows-dto';
 
 @Controller('shows')
 export class ShowsController {
   constructor(private readonly showsService: ShowsService) {}
 
-  @Post()
-  create(@Body() createShowDto: CreateShowDto) {
-    return this.showsService.create(createShowDto);
-  }
+  @Get(':movieId')
+  @ApiOkResponse({ type: ShowsMovieDetailEntity })
+  @ApiQuery({ name: 'date', required: false, type: String })
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getShowDetailsById(
+    @Param('movieId', ParseIntPipe) movieId: number,
+    @Query() query: GetShowsDto,
+  ) {
+    const shows = await this.showsService.findShowsByMovieId(movieId, query);
 
-  @Get()
-  findAll() {
-    return this.showsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.showsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateShowDto: UpdateShowDto) {
-    return this.showsService.update(+id, updateShowDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.showsService.remove(+id);
+    return shows.map((s) => new ShowsMovieDetailEntity(s));
   }
 }
