@@ -1,26 +1,34 @@
 import { Injectable } from '@nestjs/common';
-import { CreateShowDto } from './dto/create-show.dto';
-import { UpdateShowDto } from './dto/update-show.dto';
+import { shows } from '../../generated/prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import { GetShowsDto } from './dto/get-shows-dto';
 
 @Injectable()
 export class ShowsService {
-  create(createShowDto: CreateShowDto) {
-    return 'This action adds a new show';
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
-  findAll() {
-    return `This action returns all shows`;
-  }
+  async findShowsByMovieId(movieId: number, getShowsDto: GetShowsDto): Promise<shows[]> {
+    const { date } = getShowsDto;
+    const targetDate = date ? new Date(date) : new Date();
 
-  findOne(id: number) {
-    return `This action returns a #${id} show`;
-  }
+    const startOfDay = new Date(targetDate);
+    startOfDay.setHours(0, 0, 0, 0);
 
-  update(id: number, updateShowDto: UpdateShowDto) {
-    return `This action updates a #${id} show`;
-  }
+    const endOfDay = new Date(targetDate);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+    endOfDay.setHours(0, 0, 0, 0);
 
-  remove(id: number) {
-    return `This action removes a #${id} show`;
+    return await this.prisma.shows.findMany({
+      where: {
+        movie_id: movieId,
+        start_timestamp: {
+          gte: startOfDay,
+          lt: endOfDay,
+        },
+      },
+      orderBy: {
+        start_timestamp: 'asc',
+      },
+    });
   }
 }
