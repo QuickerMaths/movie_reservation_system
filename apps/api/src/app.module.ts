@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { MoviesModule } from './movies/movies.module';
+import { ShowsModule } from './shows/shows.module';
 
 @Module({
   imports: [
@@ -10,7 +11,8 @@ import { MoviesModule } from './movies/movies.module';
           isGlobal: true,
           envFilePath: '../../.env',
       }),
-      MoviesModule
+      MoviesModule,
+      ShowsModule
       ],
   controllers: [AppController],
   providers: [AppService],
