@@ -1,6 +1,7 @@
 import { Expose, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { Decimal } from '@prisma/client/runtime/client';
+import { MovieGridItem } from '../movies.selectors';
 
 export class MovieGridItemEntity {
   @Expose({ name: 'id' })
@@ -33,13 +34,17 @@ export class MovieGridItemEntity {
   @ApiProperty({ name: 'durationMinutes', example: 136, description: 'Duration in minutes' })
   duration_minutes: number;
 
-  @Expose({ name: 'movieGenres' }) // Keep the object structure your interface expects
+  @Expose({ name: 'genre' })
   @ApiProperty({
-    name: 'movieGenres',
     example: { name: 'Science Fiction' },
     description: 'Genre of the movie',
   })
-  movie_genres: { name: string } | null;
+  @Transform(({ obj }: { obj: MovieGridItem }) => {
+    if (!obj.movie_genres) return null;
+
+    return obj.movie_genres.name;
+  })
+  genre: string;
 
   constructor(partial: Partial<MovieGridItemEntity>) {
     Object.assign(this, partial);
