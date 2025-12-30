@@ -80,9 +80,7 @@ export default function MoviePreview({ movie, size = 'md', className }: MoviePre
           </div>
 
           <div className='flex justify-between items-center mt-auto'>
-            <span className={`${styles.metaSize} text-red-500 font-medium`}>
-              {movie.movieGenres?.name || 'Genre'}
-            </span>
+            <span className={`${styles.metaSize} text-red-500 font-medium`}>{movie.genre}</span>
             {/* TODO: Add the rating stars */}
             <span className={`${styles.metaSize} text-yellow-500 font-bold`}>
               {movie.cachedRating != null ? Number(movie.cachedRating).toFixed(1) : 'N/A'}
