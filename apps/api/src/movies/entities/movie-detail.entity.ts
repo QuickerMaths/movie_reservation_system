@@ -1,7 +1,6 @@
 import { Exclude, Expose, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { Decimal } from '@prisma/client/runtime/client';
-import { MovieGridItem } from '../movies.selectors';
 
 export class MovieDetailEntity {
   @Expose({ name: 'id' })
@@ -25,8 +24,8 @@ export class MovieDetailEntity {
     name: 'posterImageUrl',
     example: 'https://path-to-image.com',
     description: 'URL of the poster image',
+    required: false,
   })
-  @ApiProperty({ required: false, nullable: true })
   poster_image_url: string | null;
 
   @Expose({ name: 'cachedRating' })
@@ -60,10 +59,10 @@ export class MovieDetailEntity {
 
   @Expose({ name: 'genre' })
   @ApiProperty({
-    example: { name: 'Science Fiction' },
+    example: 'Science Fiction',
     description: 'Genre of the movie',
   })
-  @Transform(({ obj }: { obj: MovieGridItem }) => {
+  @Transform(({ obj }: { obj: { movie_genres?: { name: string } | null } }) => {
     if (!obj.movie_genres) return null;
 
     return obj.movie_genres.name;
