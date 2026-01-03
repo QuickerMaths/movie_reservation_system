@@ -16,6 +16,7 @@ import { UpdateMovieDto } from './dto/update-movie.dto';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { MovieGridItemEntity } from './entities/movie-grid-item.entity';
 import { MovieDetailEntity } from './entities/movie-detail.entity';
+import { EntityNotFoundException } from '../../exceptions/entity-not-found.exception';
 
 @Controller('movies')
 export class MoviesController {
@@ -42,6 +43,10 @@ export class MoviesController {
   @UseInterceptors(ClassSerializerInterceptor)
   async getMovieDetailsById(@Param('id', ParseIntPipe) id: number) {
     const movieDetails = await this.moviesService.findMovieDetailsById(id);
+
+    if (!movieDetails) {
+      throw new EntityNotFoundException('Movie', id);
+    }
 
     return new MovieDetailEntity(movieDetails);
   }

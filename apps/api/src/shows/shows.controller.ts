@@ -11,6 +11,7 @@ import { ShowsService } from './shows.service';
 import { ApiOkResponse, ApiQuery } from '@nestjs/swagger';
 import { ShowsMovieDetailEntity } from './entities/shows-movie-detail.entity';
 import { GetShowsDto } from './dto/get-shows-dto';
+import { EntityNotFoundException } from '../../exceptions/entity-not-found.exception';
 
 @Controller('shows')
 export class ShowsController {
@@ -25,6 +26,10 @@ export class ShowsController {
     @Query() query: GetShowsDto,
   ) {
     const shows = await this.showsService.findShowsByMovieId(movieId, query);
+
+    if (!shows) {
+      throw new EntityNotFoundException('Shows for Movie', movieId);
+    }
 
     return shows.map((s) => new ShowsMovieDetailEntity(s));
   }
