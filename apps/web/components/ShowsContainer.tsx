@@ -52,7 +52,7 @@ export default function ShowsContainer({ movieId }: ShowsContainerProps) {
           type='button'
           onClick={handleSetToday}
           className={`cursor-pointer pb-1 transition-all ${
-            isToday(selectedDate)
+            isToday(dateToUse)
               ? 'text-white font-bold border-b-2 border-white'
               : 'text-gray-400 hover:text-white'
           }`}
@@ -65,7 +65,7 @@ export default function ShowsContainer({ movieId }: ShowsContainerProps) {
           type='button'
           onClick={handleSetTomorrow}
           className={`cursor-pointer pb-1 transition-all ${
-            isTomorrow(selectedDate)
+            isTomorrow(dateToUse)
               ? 'text-white font-bold border-b-2 border-white'
               : 'text-gray-400 hover:text-white'
           }`}
@@ -100,7 +100,7 @@ export default function ShowsContainer({ movieId }: ShowsContainerProps) {
                 key={show.id}
                 className='cursor-pointer group flex flex-col items-center justify-center py-3 px-4 bg-zinc-900 border border-zinc-700 rounded-lg hover:bg-white hover:text-black transition-all'
               >
-                <p className='text-lg font-bold'>{show.startTime}</p>
+                <p className='text-lg font-bold'>{show.showTime}</p>
               </button>
             ))}
           </div>
