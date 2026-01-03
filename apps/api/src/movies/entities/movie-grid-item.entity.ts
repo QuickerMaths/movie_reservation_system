@@ -36,7 +36,7 @@ export class MovieGridItemEntity {
 
   @Expose({ name: 'genre' })
   @ApiProperty({
-    example: { name: 'Science Fiction' },
+    example: 'Science Fiction',
     description: 'Genre of the movie',
   })
   @Transform(({ obj }: { obj: MovieGridItem }) => {
