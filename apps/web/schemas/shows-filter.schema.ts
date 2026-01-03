@@ -6,6 +6,7 @@ export const showsFilterSchema = z.object({
       if (issue.code === 'invalid_type') {
         return 'Date is required';
       }
+      return 'Invalid date';
     },
   }),
 });
