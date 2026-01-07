@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { MoviesModule } from './movies/movies.module';
 import { ShowsModule } from './shows/shows.module';
+import { UsersModule } from './users/users.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -12,7 +14,8 @@ import { ShowsModule } from './shows/shows.module';
           envFilePath: '../../.env',
       }),
       MoviesModule,
-      ShowsModule
+      ShowsModule,
+      UsersModule
       ],
   controllers: [AppController],
   providers: [AppService],
