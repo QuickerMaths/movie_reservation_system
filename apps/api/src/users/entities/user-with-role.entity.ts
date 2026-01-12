@@ -18,9 +18,17 @@ export class UserWithRoleEntityEntity {
   @ApiProperty({ example: 'Doe' })
   last_name: string;
 
-  @ApiProperty({ example: 'regural' })
+  @ApiProperty({ example: 'regular' })
   @Expose({ name: 'email' })
   role: string;
+
+  @ApiProperty({ example: '+1234567890' })
+  @Expose({ name: 'phoneNumber' })
+  phone_number: string | null;
+
+  @ApiProperty({ example: true })
+  @Expose({ name: 'newsletterOptIn' })
+  newsletter_opt_in: boolean | null;
 
   @Exclude()
   password_hash: string;
