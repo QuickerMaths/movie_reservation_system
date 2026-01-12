@@ -1,6 +1,11 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateRegularUserDto } from './dto/create-regular-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { users } from '../../generated/prisma/client';
 import { UserEntity } from './entities/user.entity';
@@ -11,7 +16,7 @@ import { UserWithRoleEntityEntity } from './entities/user-with-role.entity';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
+  async updateRegularUser(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
     const { password, ...data } = updateUserDto;
 
     let passwordHash: string | undefined;
@@ -25,6 +30,12 @@ export class UsersService {
       data: {
         ...data,
         ...(passwordHash && { password_hash: passwordHash }),
+        regular_user_profiles: {
+          create: {
+            newsletter_opt_in: updateUserDto.newsletterOptIn,
+            phone_number: updateUserDto.phoneNumber,
+          },
+        },
       },
     });
 
@@ -35,7 +46,7 @@ export class UsersService {
     return new UserEntity(user);
   }
 
-  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+  async createRegularUser(createUserDto: CreateRegularUserDto): Promise<UserEntity> {
     const { email, password, firstName, lastName } = createUserDto;
 
     const existingUser = await this.prisma.users.findUnique({
@@ -44,6 +55,14 @@ export class UsersService {
 
     if (existingUser) {
       throw new ConflictException('User with this email already exists');
+    }
+
+    const regularRole = await this.prisma.roles.findFirst({
+      where: { name: 'REGULAR' },
+    });
+
+    if (!regularRole) {
+      throw new InternalServerErrorException('Role "REGULAR" not found. Please seed the database.');
     }
 
     const salt = await bcrypt.genSalt();
@@ -55,6 +74,17 @@ export class UsersService {
         first_name: firstName,
         last_name: lastName,
         password_hash: passwordHash,
+        users_roles: {
+          create: {
+            role_id: regularRole.role_id,
+          },
+        },
+        regular_user_profiles: {
+          create: {
+            newsletter_opt_in: createUserDto.newsletterOptIn,
+            phone_number: createUserDto.phoneNumber || null,
+          },
+        },
       },
     });
 
@@ -73,7 +103,17 @@ export class UsersService {
       include: {
         users_roles: {
           include: {
-            roles: true,
+            roles: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        regular_user_profiles: {
+          select: {
+            newsletter_opt_in: true,
+            phone_number: true,
           },
         },
       },
