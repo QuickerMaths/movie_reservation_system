@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response, Request as ExpressRequest } from 'express';
-import { CreateUserDto } from '../users/dto/create-user.dto';
+import { CreateRegularUserDto } from '../users/dto/create-regular-user.dto';
 import { UserEntity } from '../users/entities/user.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -48,7 +48,7 @@ export class AuthController {
   @Post('register')
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOkResponse({ type: UserEntity })
-  async register(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
+  async register(@Body() createUserDto: CreateRegularUserDto): Promise<UserEntity> {
     return this.authService.register(createUserDto);
   }
 

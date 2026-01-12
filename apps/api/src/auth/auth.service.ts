@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from '../users/dto/create-user.dto';
+import { CreateRegularUserDto } from '../users/dto/create-regular-user.dto';
 import { users } from '../../generated/prisma/client';
 import { UserEntity } from '../users/entities/user.entity';
 import * as bcrypt from 'bcrypt';
@@ -29,7 +29,7 @@ export class AuthService {
     };
   }
 
-  async register(createUserDto: CreateUserDto): Promise<UserEntity> {
-    return await this.usersService.create(createUserDto);
+  async register(createUserDto: CreateRegularUserDto): Promise<UserEntity> {
+    return await this.usersService.createRegularUser(createUserDto);
   }
 }
