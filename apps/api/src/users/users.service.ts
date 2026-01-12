@@ -11,6 +11,7 @@ import { users } from '../../generated/prisma/client';
 import { UserEntity } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { UserWithRoleEntityEntity } from './entities/user-with-role.entity';
+import { TUserWithRoles } from '../../types/prisma/users-queries.types';
 
 @Injectable()
 export class UsersService {
@@ -98,7 +99,7 @@ export class UsersService {
   }
 
   async findByEmail(email: string): Promise<UserWithRoleEntityEntity> {
-    const user = await this.prisma.users.findUnique({
+    const user: TUserWithRoles = await this.prisma.users.findUnique({
       where: { email },
       include: {
         users_roles: {
@@ -114,6 +115,7 @@ export class UsersService {
           select: {
             newsletter_opt_in: true,
             phone_number: true,
+            preferred_genre_id: true,
           },
         },
       },
