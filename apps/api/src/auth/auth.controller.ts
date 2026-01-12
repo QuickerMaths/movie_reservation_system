@@ -60,7 +60,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('profile')
+  @Get('me')
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOkResponse({ type: UserEntity })
   getProfile(@Request() req: RequestWithUser): UserEntity {
