@@ -32,9 +32,16 @@ export class UsersService {
         ...data,
         ...(passwordHash && { password_hash: passwordHash }),
         regular_user_profiles: {
-          create: {
-            newsletter_opt_in: updateUserDto.newsletterOptIn,
-            phone_number: updateUserDto.phoneNumber,
+          upsert: {
+            where: { user_id: id },
+            create: {
+              newsletter_opt_in: updateUserDto.newsletterOptIn,
+              phone_number: updateUserDto.phoneNumber,
+            },
+            update: {
+              newsletter_opt_in: updateUserDto.newsletterOptIn,
+              phone_number: updateUserDto.phoneNumber,
+            },
           },
         },
       },
