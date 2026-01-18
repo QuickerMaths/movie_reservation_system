@@ -18,8 +18,8 @@ export function RegularDashboard({ user }: RegularDashboardProps) {
         </div>
         <div className='hidden h-20 w-20 items-center justify-center rounded-full bg-gray-800 md:flex'>
           <span className='text-2xl font-bold text-red-500'>
-            {user.firstName}
-            {user.lastName}
+            {user.firstName?.[0]}
+            {user.lastName?.[0]}
           </span>
         </div>
       </div>
