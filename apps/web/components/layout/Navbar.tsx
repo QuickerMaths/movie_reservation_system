@@ -139,14 +139,11 @@ export default function Navbar() {
               <SheetTitle className='text-white sr-only'>Navigation Menu</SheetTitle>
               {/* ... (Keep existing mobile logic, but update Auth buttons similarly) ... */}
               <div className='flex flex-col gap-6 mt-6'>
+                {/* ... routes ... */}
                 {routes.map((route) => {
                   const Icon = route.icon;
                   return (
-                    <Link
-                      key={route.href}
-                      href={route.href}
-                      onClick={() => setIsOpen(false)}
-                    >
+                    <Link key={route.href} href={route.href} onClick={() => setIsOpen(false)}>
                       <Button variant='ghost' className='w-full justify-start gap-2'>
                         {Icon && <Icon className='h-4 w-4' />}
                         <span>{route.label}</span>
@@ -154,7 +151,6 @@ export default function Navbar() {
                     </Link>
                   );
                 })}
-
                 {/* Mobile Auth Buttons */}
                 <div className='mt-auto flex flex-col gap-3'>
                   {user ? (
