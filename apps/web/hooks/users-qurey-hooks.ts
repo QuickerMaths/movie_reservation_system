@@ -19,8 +19,8 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: (data: LoginSchema) => loginUser(data),
-    onSuccess: (user) => {
-      queryClient.setQueryData(['current-user'], user);
+    onSuccess: async (user) => {
+      await queryClient.setQueryData(['current-user'], user);
       router.push('/');
     },
   });
@@ -32,8 +32,8 @@ export function useRegister() {
 
   return useMutation({
     mutationFn: (data: RegisterSchema) => registerUser(data),
-    onSuccess: (user) => {
-      queryClient.setQueryData(['current-user'], user);
+    onSuccess: async (user) => {
+      await queryClient.setQueryData(['current-user'], user);
       router.push('/');
     },
   });
@@ -45,7 +45,7 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: logoutUser,
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.setQueryData(['current-user'], null);
       router.push('/');
     },
