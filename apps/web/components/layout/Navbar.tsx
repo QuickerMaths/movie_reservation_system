@@ -76,8 +76,8 @@ export default function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button variant='ghost' className='relative h-8 w-8 rounded-full bg-gray-800'>
                     <span className='text-xs font-bold text-red-500'>
-                      {user.firstName}
-                      {user.lastName}
+                      {user.firstName.charAt(0)}
+                      {user.lastName.charAt(0)}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
