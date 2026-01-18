@@ -16,6 +16,7 @@ import { UserEntity } from '../users/entities/user.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ApiOkResponse } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 interface RequestWithUser extends ExpressRequest {
   user: UserEntity;
@@ -27,6 +28,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOkResponse({ type: UserEntity })
   @UseInterceptors(ClassSerializerInterceptor)
   login(
@@ -46,6 +48,7 @@ export class AuthController {
   }
 
   @Post('register')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOkResponse({ type: UserEntity })
   async register(@Body() createUserDto: CreateRegularUserDto): Promise<UserEntity> {
