@@ -1,25 +1,32 @@
-import { Injectable } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CreateRegularUserDto } from '../users/dto/create-regular-user.dto';
-import { users } from '../../generated/prisma/client';
-import { UserEntity } from '../users/entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { UsersService } from '../users/users.service';
+import { CreateRegularUserDto } from '../users/dto/create-regular-user.dto';
+import { UserEntity } from '../users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<UserEntity> {
-    const user: users = await this.usersService.findOne(email);
+    try {
+      const user: UserEntity = await this.usersService.findOne(email);
+      const isMatch = await bcrypt.compare(pass, user.password_hash);
 
-    if (user && (await bcrypt.compare(pass, user.password_hash))) {
-      return new UserEntity(user);
+      if (isMatch) {
+        return user;
+      }
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        return null;
+      }
+
+      throw error;
     }
-    return null;
   }
 
   login(user: UserEntity): { access_token: string } {
@@ -30,6 +37,6 @@ export class AuthService {
   }
 
   async register(createUserDto: CreateRegularUserDto): Promise<UserEntity> {
-    return await this.usersService.createRegularUser(createUserDto);
+    return this.usersService.createRegularUser(createUserDto);
   }
 }
