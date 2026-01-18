@@ -1,17 +1,13 @@
-import {
-  Injectable,
-  ConflictException,
-  NotFoundException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRegularUserDto } from './dto/create-regular-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { users } from '../../generated/prisma/client';
+import { users, roles } from '../../generated/prisma/client';
 import { UserEntity } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { UserWithRoleEntityEntity } from './entities/user-with-role.entity';
 import { TUserWithRoles } from '../../types/prisma/users-queries.types';
+import { EntityNotFoundException } from '../../exceptions/entity-not-found.exception';
 
 @Injectable()
 export class UsersService {
@@ -26,7 +22,7 @@ export class UsersService {
       passwordHash = await bcrypt.hash(password, salt);
     }
 
-    const user = await this.prisma.users.update({
+    const user: users = await this.prisma.users.update({
       where: { user_id: id },
       data: {
         ...data,
@@ -47,31 +43,19 @@ export class UsersService {
       },
     });
 
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
     return new UserEntity(user);
   }
 
   async createRegularUser(createUserDto: CreateRegularUserDto): Promise<UserEntity> {
     const { email, password, firstName, lastName } = createUserDto;
 
-    const existingUser = await this.prisma.users.findUnique({
-      where: { email },
-    });
-
-    if (existingUser) {
-      throw new ConflictException('User with this email already exists');
-    }
-
-    const regularRole = await this.prisma.roles.findFirst({
-      where: { name: 'REGULAR' },
-    });
-
-    if (!regularRole) {
-      throw new InternalServerErrorException('Role "REGULAR" not found. Please seed the database.');
-    }
+    const regularRole: roles = await this.prisma.roles
+      .findFirst({
+        where: { name: 'REGULAR' },
+      })
+      .catch(() => {
+        throw new InternalServerErrorException('System role "REGULAR" not found.');
+      });
 
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(password, salt);
@@ -99,10 +83,15 @@ export class UsersService {
     return new UserEntity(user);
   }
 
-  async findOne(email: string): Promise<users> {
-    return this.prisma.users.findUnique({
+  async findOne(email: string): Promise<UserEntity> {
+    const user: users = await this.prisma.users.findUnique({
       where: { email },
     });
+
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
+    return new UserEntity(user);
   }
 
   async findByEmail(email: string): Promise<UserWithRoleEntityEntity> {
@@ -127,6 +116,10 @@ export class UsersService {
         },
       },
     });
+
+    if (!user) {
+      throw new EntityNotFoundException('User', email);
+    }
 
     return new UserWithRoleEntityEntity(user);
   }
