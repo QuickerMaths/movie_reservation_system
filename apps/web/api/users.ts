@@ -9,7 +9,7 @@ export async function getCurrentUser(): Promise<IUser> {
 }
 
 export async function logoutUser(): Promise<void> {
-  return apiFetch(`/users/logout`, {
+  return apiFetch(`/auth/logout`, {
     method: 'POST',
     credentials: 'include',
   });
