@@ -1,12 +1,19 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+import cookieParser from 'cookie-parser';
+import { PrismaExceptionFilter } from './prisma/filters/prisma-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const corsOrigin =
     process.env.FRONTEND_URL ?? (process.env.NODE_ENV !== 'production' ? true : undefined);
+
+  app.use(cookieParser());
+
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   app.enableCors({
     origin: corsOrigin,
@@ -21,6 +28,9 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document);
+
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new PrismaExceptionFilter(httpAdapter));
 
   await app.listen(process.env.API_PORT ?? 4000);
 }
