@@ -63,22 +63,35 @@ model regular_user_profiles {
   users              users         @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
 }
 
+enum ReservationStatus {
+  PAID
+  CANCELLED
+  PENDING
+}
+
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model reservations {
-  reservation_id   Int       @id @default(autoincrement())
-  reservation_date DateTime? @default(now()) @db.Timestamp(6)
-  status           String?   @db.VarChar(20)
-  user_id          Int?
-  show_id          Int?
-  shows            shows?    @relation(fields: [show_id], references: [show_id], onDelete: NoAction, onUpdate: NoAction)
-  users            users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
-  tickets          tickets[]
+  reservation_id     Int               @id @default(autoincrement())
+  reservation_date   DateTime?         @default(now()) @db.Timestamp(6)
+  status             ReservationStatus @default(PENDING)
+  user_id            Int?
+  guest_emial        String?           @db.VarChar(255)
+  cancellation_token String            @unique @default(uuid())
+  show_id            Int?
+  shows              shows?            @relation(fields: [show_id], references: [show_id], onDelete: NoAction, onUpdate: NoAction)
+  users              users?            @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  tickets            tickets[]
+}
+
+enum Roles {
+  REGULAR
+  ADMIN
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model roles {
   role_id     Int           @id @default(autoincrement())
-  name        String        @default("REGULAR") @db.VarChar(20)
+  name        Roles         @default(REGULAR)
   users_roles users_roles[]
 }
 
