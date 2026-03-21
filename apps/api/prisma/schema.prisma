@@ -124,17 +124,20 @@ model shows {
   reservations    reservations[]
   movies          movies?        @relation(fields: [movie_id], references: [movie_id], onDelete: Cascade, onUpdate: NoAction)
   movie_rooms     movie_rooms?   @relation(fields: [movie_room_id], references: [movie_room_id], onDelete: NoAction, onUpdate: NoAction)
+  tickets         tickets[]
 }
 
 model tickets {
-  ticket_id      Int          @id @default(autoincrement())
-  sold_price     Decimal      @db.Decimal(10, 2)
-  reservation_id Int
-  seat_id        Int
-  reservations   reservations @relation(fields: [reservation_id], references: [reservation_id], onDelete: Cascade, onUpdate: NoAction)
-  seats          seats        @relation(fields: [seat_id], references: [seat_id], onDelete: NoAction, onUpdate: NoAction)
+  ticket_id      Int           @id @default(autoincrement())
+  sold_price     Decimal       @db.Decimal(10, 2)
+  reservation_id Int?
+  seat_id        Int?
+  show_id        Int?
+  reservations   reservations? @relation(fields: [reservation_id], references: [reservation_id], onDelete: NoAction, onUpdate: NoAction)
+  seats          seats?        @relation(fields: [seat_id], references: [seat_id], onDelete: NoAction, onUpdate: NoAction)
+  shows          shows?        @relation(fields: [show_id], references: [show_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([reservation_id, seat_id])
+  @@unique([show_id, seat_id])
 }
 
 model users {
