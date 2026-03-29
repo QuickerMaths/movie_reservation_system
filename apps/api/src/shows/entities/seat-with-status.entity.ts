@@ -1,6 +1,7 @@
 import { Exclude, Expose, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { Prisma } from '../../../generated/prisma/client';
+import { Decimal } from '@prisma/client/runtime/client';
 
 export enum SeatStatus {
   AVAILABLE = 'AVAILABLE',
@@ -29,7 +30,7 @@ export class SeatWithStatusEntity {
   @ApiProperty({ name: 'row', example: 'A', description: 'Row label' })
   row_label: string;
 
-  @Expose({ name: 'seatNumber ' })
+  @Expose({ name: 'seatNumber' })
   @ApiProperty({ name: 'seatNumber', example: 1, description: 'Seat number' })
   seat_number: number;
 
@@ -43,9 +44,9 @@ export class SeatWithStatusEntity {
   @Expose({ name: 'price' })
   @ApiProperty({ name: 'price', example: 20.0, description: 'Price of the seat' })
   @Transform(({ obj }: { obj: SeatWithRelations }) => {
-    return obj.seat_types.default_price;
+    return obj.seat_types.default_price.toNumber();
   })
-  price: number;
+  price: number | Decimal;
 
   @Expose({ name: 'status' })
   @ApiProperty({ enum: SeatStatus })
@@ -59,6 +60,12 @@ export class SeatWithStatusEntity {
       : SeatStatus.TAKEN;
   })
   status: SeatStatus;
+
+  @Exclude()
+  seat_type_id: number;
+
+  @Exclude()
+  movie_room_id: number;
 
   @Exclude()
   seat_types: any;
