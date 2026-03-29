@@ -4,12 +4,15 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { showsFilterSchema, ShowsFilterValues } from '@/schemas/shows-filter.schema';
 import { useShowsByMovieIdQuery } from '@/hooks/shows-query-hooks';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 interface ShowsContainerProps {
   movieId: string;
+  showId?: string;
 }
 
-export default function ShowsContainer({ movieId }: ShowsContainerProps) {
+export default function ShowsContainer({ movieId, showId }: ShowsContainerProps) {
   const { setValue, control, register } = useForm<ShowsFilterValues>({
     resolver: zodResolver(showsFilterSchema),
     defaultValues: {
@@ -24,8 +27,6 @@ export default function ShowsContainer({ movieId }: ShowsContainerProps) {
   const dateToUse = selectedDate || new Date();
 
   const dateString = dateToUse.toISOString().split('T')[0];
-
-  const { data: shows, isLoading, isError } = useShowsByMovieIdQuery(movieId, dateString);
 
   const handleSetToday = () => setValue('date', new Date());
   const handleSetTomorrow = () => {
@@ -42,8 +43,10 @@ export default function ShowsContainer({ movieId }: ShowsContainerProps) {
     return d.toISOString().split('T')[0] === tmr.toISOString().split('T')[0];
   };
 
+  const { data: shows, isLoading, isError } = useShowsByMovieIdQuery(movieId, dateString);
+
   return (
-    <section className='col-span-1 mt-10 md:col-span-4 md:mt-0'>
+    <section>
       <h3 className='text-2xl font-bold mb-6'>Screenings</h3>
 
       <div className='flex flex-wrap gap-6 border-b border-gray-800 pb-4 mb-8 items-center'>
@@ -96,12 +99,19 @@ export default function ShowsContainer({ movieId }: ShowsContainerProps) {
         {!isLoading && shows && shows.length > 0 && (
           <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4'>
             {shows.map((show) => (
-              <button
+              <Link
                 key={show.id}
-                className='cursor-pointer group flex flex-col items-center justify-center py-3 px-4 bg-zinc-900 border border-zinc-700 rounded-lg hover:bg-white hover:text-black transition-all'
+                href={`/movies/${movieId}/book/${show.id}`}
+                className={cn(
+                  'cursor-pointer group flex flex-col items-center justify-center py-3 px-8 border rounded-lg transition-all  hover:shadow-[0_0_15px_rgba(255,255,255,0.3)]',
+                  // Active/Selected State
+                  showId && +showId == show.id
+                    ? 'bg-red-600 text-white border-red-500 hover:border-red-400 pointer-events-none'
+                    : 'bg-zinc-900 border-zinc-700 text-white hover:border-zinc-500',
+                )}
               >
                 <p className='text-lg font-bold'>{show.showTime}</p>
-              </button>
+              </Link>
             ))}
           </div>
         )}
