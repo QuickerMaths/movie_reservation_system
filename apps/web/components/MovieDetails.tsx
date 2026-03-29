@@ -50,12 +50,6 @@ export default function MovieDetails({ id }: { id: string }) {
           </div>
         </div>
       </div>
-
-      {/* Right Column: Showtimes (Wireframe: Today/Tomorrow, Show time buttons) */}
-      <div className='md:col-span-4 pl-0 md:pl-8'>
-        {/*TODO: Implement ShowtimeSelector component*/}
-        {/*<ShowtimeSelector screenings={movie.screenings} />*/}
-      </div>
     </div>
   );
 }
