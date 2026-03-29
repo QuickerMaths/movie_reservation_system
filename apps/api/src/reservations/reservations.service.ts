@@ -22,7 +22,7 @@ export class ReservationsService {
               { status: ReservationStatus.PAID },
               {
                 status: ReservationStatus.PENDING,
-                reservation_date: { gte: TEN_MINUTES_AGO },
+                reservation_date: { lte: TEN_MINUTES_AGO },
               },
             ],
           },
@@ -35,19 +35,29 @@ export class ReservationsService {
 
       const reservation = await tx.reservations.create({
         data: {
-          reservation_date: new Date(Date.now() - 10 * 60 * 1000),
+          reservation_date: new Date(Date.now()),
           status: ReservationStatus.PENDING,
+          show_id,
           user_id: userId || null,
           guest_emial: guest_email || null,
         },
       });
 
+      const seatsWithPrices = await tx.seats.findMany({
+        where: {
+          seat_id: { in: seat_ids },
+        },
+        include: {
+          seat_types: true,
+        },
+      });
+
       await tx.tickets.createMany({
-        data: seat_ids.map((seatId) => ({
+        data: seatsWithPrices.map((seat) => ({
           reservation_id: reservation.reservation_id,
           show_id,
-          seat_id: seatId,
-          sold_price: Number(seatId),
+          seat_id: seat.seat_id,
+          sold_price: Number(seat.seat_types.default_price),
         })),
       });
 
