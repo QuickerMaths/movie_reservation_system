@@ -1,4 +1,4 @@
-import { IShows } from '@/types/shows';
+import { IShows, IShowsSeats } from '@/types/shows';
 import { apiFetch } from '@/lib/utils';
 
 export function fetchShowsByMovieId(movieId: number, date: string) {
@@ -6,4 +6,8 @@ export function fetchShowsByMovieId(movieId: number, date: string) {
   params.append('date', date);
 
   return apiFetch<IShows[]>(`/shows/${movieId}?${params.toString()}`);
+}
+
+export function fetchShowsSeatsById(showId: string): Promise<IShowsSeats[]> {
+  return apiFetch<IShowsSeats[]>(`shows/${showId}/seats`);
 }
