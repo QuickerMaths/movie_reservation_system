@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { ReservationsModule } from './reservations/reservations.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ReservationsModule } from './reservations/reservations.module';
     UsersModule,
     AuthModule,
     ReservationsModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [
