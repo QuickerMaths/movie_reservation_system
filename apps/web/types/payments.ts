@@ -1,7 +1,9 @@
-export type TPaymentStatus = 'PAID' | 'PENDING' | 'CANCELLED';
+import { ReservationStatus } from '@/types/reservations';
+
+export type TPaymentRouteStatus = 'paid' | 'pending' | 'cancelled';
 
 export interface TPaymentRequest {
   reservation_id: number;
-  result: TPaymentStatus;
+  result: ReservationStatus;
   amount: number;
 }
