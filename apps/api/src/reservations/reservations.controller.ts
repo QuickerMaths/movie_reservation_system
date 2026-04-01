@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Patch,
   Post,
   Body,
   Request,
@@ -10,6 +11,7 @@ import {
   Param,
   ParseIntPipe,
 } from '@nestjs/common';
+import { CancelReservationDto } from './dto/cancel-reservation.dto';
 import { ReservationsService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
@@ -54,5 +56,24 @@ export class ReservationsController {
     }
 
     return new ReservationDetailEntity(reservation);
+  }
+
+  @Patch(':id/cancel')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseGuards(OptionalJwtGuard)
+  @ApiOkResponse({ type: ReservationEntity })
+  async cancel(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() cancelReservationDto: CancelReservationDto,
+    @Request() req: RequestWithUser,
+  ): Promise<ReservationEntity> {
+    const userId = req.user?.user_id;
+    const reservation = await this.reservationsService.cancel(
+      id,
+      cancelReservationDto.cancellation_token,
+      userId,
+    );
+
+    return new ReservationEntity(reservation);
   }
 }
