@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Prisma } from '../../../generated/prisma/client';
-import { Decimal } from '@prisma/client/runtime/client';
 import { ReservationStatus } from '../../../generated/prisma/client';
+import { toSeatSnapshotItems } from '../../../helpers/helpers';
 
 export type ReservationWithRelations = Prisma.reservationsGetPayload<{
   include: {
@@ -12,21 +12,8 @@ export type ReservationWithRelations = Prisma.reservationsGetPayload<{
         movie_rooms: true;
       };
     };
-    tickets: {
-      include: {
-        seats: {
-          include: {
-            seat_types: true;
-          };
-        };
-      };
-    };
   };
 }>;
-
-function toNumber(value: Decimal | number): number {
-  return value instanceof Decimal ? value.toNumber() : Number(value);
-}
 
 export class ReservationDetailEntity {
   @ApiProperty({
@@ -91,7 +78,6 @@ export class ReservationDetailEntity {
     description: 'List of tickets included in the reservation',
     example: [
       {
-        ticketId: 1042,
         soldPrice: 15.5,
         seat: {
           row: 'F',
@@ -100,7 +86,6 @@ export class ReservationDetailEntity {
         },
       },
       {
-        ticketId: 1043,
         soldPrice: 15.5,
         seat: {
           row: 'F',
@@ -111,7 +96,6 @@ export class ReservationDetailEntity {
     ],
   })
   tickets: Array<{
-    ticketId: number;
     soldPrice: number;
     seat: {
       row: string;
@@ -127,15 +111,7 @@ export class ReservationDetailEntity {
   totalPrice: number;
 
   constructor(reservation: ReservationWithRelations) {
-    const mappedTickets = reservation.tickets.map((ticket) => ({
-      ticketId: ticket.ticket_id,
-      soldPrice: toNumber(ticket.sold_price),
-      seat: {
-        row: ticket.seats?.row_label ?? '',
-        number: ticket.seats?.seat_number ?? 0,
-        type: ticket.seats?.seat_types?.name ?? '',
-      },
-    }));
+    const snapshot = toSeatSnapshotItems(reservation.seats_snapshot);
 
     this.id = reservation.reservation_id;
     this.reservationDate = reservation.reservation_date?.toISOString() ?? '';
@@ -146,7 +122,14 @@ export class ReservationDetailEntity {
     this.roomNumber = reservation.shows?.movie_rooms?.room_number ?? '';
     this.startTime = reservation.shows?.start_timestamp?.toISOString() ?? '';
     this.durationMinutes = reservation.shows?.movies?.duration_minutes ?? 0;
-    this.tickets = mappedTickets;
-    this.totalPrice = mappedTickets.reduce((sum, ticket) => sum + ticket.soldPrice, 0);
+    this.tickets = snapshot.map((seat) => ({
+      soldPrice: seat.price,
+      seat: {
+        row: seat.row,
+        number: seat.number,
+        type: seat.type,
+      },
+    }));
+    this.totalPrice = snapshot.reduce((acc, seat) => acc + seat.price, 0);
   }
 }
