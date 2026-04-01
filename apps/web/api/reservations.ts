@@ -1,5 +1,5 @@
 import { ReservationsSchema } from '@/schemas/reservations.schema';
-import { IReservation } from '@/types/reservations';
+import { IReservation, IReservationDetail } from '@/types/reservations';
 import { apiFetch } from '@/lib/utils';
 
 export async function createReservation(data: ReservationsSchema): Promise<IReservation> {
@@ -9,6 +9,12 @@ export async function createReservation(data: ReservationsSchema): Promise<IRese
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
+    credentials: 'include',
+  });
+}
+
+export async function getReservationById(id: string): Promise<IReservationDetail> {
+  return apiFetch<IReservationDetail>(`/reservations/${id}`, {
     credentials: 'include',
   });
 }
