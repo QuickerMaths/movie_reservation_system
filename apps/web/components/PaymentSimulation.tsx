@@ -2,9 +2,9 @@
 
 import { useProcessPayment } from '@/hooks/payment-query-hooks';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, CreditCard, AlertCircle, Clock, CircleDollarSignIcon } from 'lucide-react';
-import { TPaymentStatus } from '@/types/payments';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertCircle, CircleDollarSignIcon, Clock, CreditCard, Loader2 } from 'lucide-react';
+import { ReservationStatus } from '@/types/reservations';
 
 interface PaymentSimulationProps {
   reservationId: string;
@@ -14,7 +14,7 @@ export default function PaymentSimulation({ reservationId }: PaymentSimulationPr
   const id = parseInt(reservationId);
   const { mutate, isPending } = useProcessPayment();
 
-  const handlePayment = (result: TPaymentStatus) => {
+  const handlePayment = (result: ReservationStatus) => {
     mutate({ reservation_id: id, result, amount: 1 });
   };
 
@@ -32,7 +32,7 @@ export default function PaymentSimulation({ reservationId }: PaymentSimulationPr
 
       <CardContent className='space-y-4'>
         <Button
-          onClick={() => handlePayment('PAID')}
+          onClick={() => handlePayment(ReservationStatus.PAID)}
           disabled={isPending}
           className='w-full bg-green-600 hover:bg-green-500 h-12 cursor-pointer'
         >
@@ -42,7 +42,7 @@ export default function PaymentSimulation({ reservationId }: PaymentSimulationPr
         </Button>
 
         <Button
-          onClick={() => handlePayment('PENDING')}
+          onClick={() => handlePayment(ReservationStatus.PENDING)}
           disabled={isPending}
           variant='outline'
           className='w-full border-orange-200 text-white bg-orange-500 hover:bg-orange-400 hover:text-white h-12 cursor-pointer'
@@ -52,7 +52,7 @@ export default function PaymentSimulation({ reservationId }: PaymentSimulationPr
         </Button>
 
         <Button
-          onClick={() => handlePayment('CANCELLED')}
+          onClick={() => handlePayment(ReservationStatus.CANCELLED)}
           disabled={isPending}
           variant='destructive'
           className='w-full h-12 cursor-pointer'
