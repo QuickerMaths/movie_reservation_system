@@ -1,5 +1,5 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createReservation } from '@/api/reservations';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createReservation, getReservationById } from '@/api/reservations';
 import { ReservationsSchema } from '@/schemas/reservations.schema';
 import { useRouter } from 'next/navigation';
 
@@ -11,10 +11,20 @@ export const useCreateReservation = () => {
     mutationFn: async (payload: ReservationsSchema) => {
       return await createReservation(payload);
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (reservation, variables) => {
       queryClient.invalidateQueries({ queryKey: ['showsSeats', variables.show_id] });
+
+      console.log(reservation);
       //TODO: push to payment section
-      router.push('/');
+      router.push(`/reservation/${reservation.id}/payment`);
     },
+  });
+};
+
+export const useGetReservationByIdQuery = (id: string) => {
+  return useQuery({
+    queryKey: ['reservation', id],
+    queryFn: () => getReservationById(id),
+    staleTime: 60 * 1000,
   });
 };
