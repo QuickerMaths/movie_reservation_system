@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { ReservationStatus } from '../../generated/prisma/client';
 import { reservations } from '../../generated/prisma/client';
+import { ReservationWithRelations } from './entities/reservation-paid.entity';
 
 @Injectable()
 export class ReservationsService {
@@ -22,7 +23,7 @@ export class ReservationsService {
               { status: ReservationStatus.PAID },
               {
                 status: ReservationStatus.PENDING,
-                reservation_date: { lte: TEN_MINUTES_AGO },
+                reservation_date: { gte: TEN_MINUTES_AGO },
               },
             ],
           },
@@ -62,6 +63,30 @@ export class ReservationsService {
       });
 
       return reservation;
+    });
+  }
+
+  async findOne(id: number): Promise<ReservationWithRelations> {
+    return this.prisma.reservations.findUnique({
+      where: { reservation_id: id },
+      include: {
+        users: true,
+        shows: {
+          include: {
+            movies: true,
+            movie_rooms: true,
+          },
+        },
+        tickets: {
+          include: {
+            seats: {
+              include: {
+                seat_types: true,
+              },
+            },
+          },
+        },
+      },
     });
   }
 }
