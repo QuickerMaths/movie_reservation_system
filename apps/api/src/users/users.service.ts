@@ -3,9 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateRegularUserDto } from './dto/create-regular-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { users, roles } from '../../generated/prisma/client';
-import { UserEntity } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import { UserWithRoleEntityEntity } from './entities/user-with-role.entity';
 import { TUserWithRoles } from '../../types/prisma/users-queries.types';
 import { EntityNotFoundException } from '../../exceptions/entity-not-found.exception';
 
@@ -13,7 +11,7 @@ import { EntityNotFoundException } from '../../exceptions/entity-not-found.excep
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async updateRegularUser(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
+  async updateRegularUser(id: number, updateUserDto: UpdateUserDto): Promise<users> {
     const { password, ...data } = updateUserDto;
 
     let passwordHash: string | undefined;
@@ -43,10 +41,10 @@ export class UsersService {
       },
     });
 
-    return new UserEntity(user);
+    return user;
   }
 
-  async createRegularUser(createUserDto: CreateRegularUserDto): Promise<UserEntity> {
+  async createRegularUser(createUserDto: CreateRegularUserDto): Promise<users> {
     const { email, password, firstName, lastName } = createUserDto;
 
     const regularRole: roles = await this.prisma.roles
@@ -80,10 +78,10 @@ export class UsersService {
       },
     });
 
-    return new UserEntity(user);
+    return user;
   }
 
-  async findOne(email: string): Promise<UserEntity> {
+  async findOne(email: string): Promise<users> {
     const user: users = await this.prisma.users.findUnique({
       where: { email },
     });
@@ -91,10 +89,10 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`User with email ${email} not found`);
     }
-    return new UserEntity(user);
+    return user;
   }
 
-  async findByEmail(email: string): Promise<UserWithRoleEntityEntity> {
+  async findByEmail(email: string): Promise<TUserWithRoles> {
     const user: TUserWithRoles = await this.prisma.users.findUnique({
       where: { email },
       include: {
@@ -121,6 +119,6 @@ export class UsersService {
       throw new EntityNotFoundException('User', email);
     }
 
-    return new UserWithRoleEntityEntity(user);
+    return user;
   }
 }
