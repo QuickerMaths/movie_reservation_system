@@ -14,6 +14,18 @@ export interface IReservation {
   showId: number;
 }
 
+export interface IPaginatedReservations {
+  data: IReservation[];
+  meta: IReservationsPaginationMeta;
+}
+
+export interface IReservationsPaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 export interface IReservationDetail {
   id: number;
   reservationDate: string;
