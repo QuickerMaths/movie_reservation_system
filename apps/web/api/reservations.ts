@@ -1,5 +1,5 @@
 import { ReservationsSchema } from '@/schemas/reservations.schema';
-import { IReservation, IReservationDetail } from '@/types/reservations';
+import { IPaginatedReservations, IReservation, IReservationDetail } from '@/types/reservations';
 import { apiFetch } from '@/lib/utils';
 
 export async function createReservation(data: ReservationsSchema): Promise<IReservation> {
@@ -32,3 +32,22 @@ export async function cancelReservationByToken(token: string): Promise<IReservat
   });
 }
 
+export async function getReservationsByUserId(
+  userId: number,
+  page = 1,
+  limit = 10,
+): Promise<IPaginatedReservations> {
+  return apiFetch<IPaginatedReservations>(
+    `/reservations/user/${userId}?page=${page}&limit=${limit}`,
+    {
+      credentials: 'include',
+    },
+  );
+}
+
+export async function cancelReservationLoggedUser(reservationId: number): Promise<IReservation> {
+  return apiFetch<IReservation>(`/reservations/${reservationId}/cancel/me`, {
+    method: 'PATCH',
+    credentials: 'include',
+  });
+}
