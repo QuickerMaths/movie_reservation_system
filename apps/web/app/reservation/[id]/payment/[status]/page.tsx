@@ -1,4 +1,4 @@
-import ReservationSuccessPage from '@/components/ReservationSuccess';
+import ReservationSuccessPage from '@/components/ReservationStatus';
 import { getQueryClient } from '@/providers/get-query-client';
 import { getReservationById } from '@/api/reservations';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';

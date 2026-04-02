@@ -27,7 +27,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useGetReservationByIdQuery } from '@/hooks/reservations-query-hooks';
 import { useRouter } from 'next/navigation';
-import { ReservationStatus } from '@/types/reservations';
+import { ReservationStatus as TReservationStatus } from '@/types/reservations';
 
 interface ReservationSuccessProps {
   reservationId: string;
@@ -70,7 +70,7 @@ function getStatusClasses(status: string) {
 }
 
 function getStatusIcon(status: string) {
-  if (status === ReservationStatus.PENDING) {
+  if (status === TReservationStatus.PENDING) {
     return {
       Icon: Hourglass,
       wrapperClassName: 'bg-amber-500/10',
@@ -78,7 +78,7 @@ function getStatusIcon(status: string) {
     };
   }
 
-  if (status === ReservationStatus.CANCELLED) {
+  if (status === TReservationStatus.CANCELLED) {
     return {
       Icon: CircleX,
       wrapperClassName: 'bg-destructive/10',
@@ -93,7 +93,7 @@ function getStatusIcon(status: string) {
   };
 }
 
-export default function ReservationSuccess({ reservationId }: ReservationSuccessProps) {
+export default function ReservationStatus({ reservationId }: ReservationSuccessProps) {
   const router = useRouter();
   const {
     data: reservation,
@@ -141,11 +141,11 @@ export default function ReservationSuccess({ reservationId }: ReservationSuccess
   const seatsLabel = reservation.tickets
     .map((ticket) => `${ticket.seat.row}${ticket.seat.number}`)
     .join(', ');
-  const isPendingReservation = reservation.status === ReservationStatus.PENDING;
-  const isCanceledReservation = reservation.status === ReservationStatus.CANCELLED;
+  const isPendingReservation = reservation.status === TReservationStatus.PENDING;
+  const isCanceledReservation = reservation.status === TReservationStatus.CANCELLED;
   const canShowCancellationSection =
-    reservation.status === ReservationStatus.PENDING ||
-    reservation.status === ReservationStatus.PAID;
+    reservation.status === TReservationStatus.PENDING ||
+    reservation.status === TReservationStatus.PAID;
   const { Icon: StatusIcon, wrapperClassName, iconClassName } = getStatusIcon(reservation.status);
 
   const handlePayNow = () => {
