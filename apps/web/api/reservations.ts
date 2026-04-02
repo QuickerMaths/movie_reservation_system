@@ -18,3 +18,17 @@ export async function getReservationById(id: string): Promise<IReservationDetail
     credentials: 'include',
   });
 }
+
+export async function getReservationByToken(token: string): Promise<IReservationDetail> {
+  return apiFetch<IReservationDetail>(`/reservations/cancel/${token}`, {
+    credentials: 'include',
+  });
+}
+
+export async function cancelReservationByToken(token: string): Promise<IReservation> {
+  return apiFetch<IReservation>(`/reservations/cancel/${token}`, {
+    method: 'PATCH',
+    credentials: 'include',
+  });
+}
+
