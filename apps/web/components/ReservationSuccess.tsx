@@ -143,6 +143,9 @@ export default function ReservationSuccess({ reservationId }: ReservationSuccess
     .join(', ');
   const isPendingReservation = reservation.status === ReservationStatus.PENDING;
   const isCanceledReservation = reservation.status === ReservationStatus.CANCELLED;
+  const canShowCancellationSection =
+    reservation.status === ReservationStatus.PENDING ||
+    reservation.status === ReservationStatus.PAID;
   const { Icon: StatusIcon, wrapperClassName, iconClassName } = getStatusIcon(reservation.status);
 
   const handlePayNow = () => {
@@ -255,6 +258,13 @@ export default function ReservationSuccess({ reservationId }: ReservationSuccess
         {isPendingReservation && (
           <Button className='w-full sm:w-auto' onClick={handlePayNow}>
             Pay now
+          </Button>
+        )}
+        {canShowCancellationSection && (
+          <Button asChild variant='outline' className='w-full sm:w-fit'>
+            <Link href={`/reservation/cancel/${reservation.cancellationToken}`}>
+              Cancel reservation
+            </Link>
           </Button>
         )}
         <Button asChild variant='outline' className='w-full sm:w-auto'>
