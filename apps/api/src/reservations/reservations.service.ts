@@ -161,6 +161,48 @@ export class ReservationsService {
     });
   }
 
+  async findByUserId(
+    userId: number,
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    data: reservations[];
+    meta: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
+    const safePage = Math.max(page, 1);
+    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const skip = (safePage - 1) * safeLimit;
+
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.reservations.findMany({
+        where: { user_id: userId },
+        orderBy: { reservation_date: 'desc' },
+        skip,
+        take: safeLimit,
+      }),
+      this.prisma.reservations.count({
+        where: { user_id: userId },
+      }),
+    ]);
+
+    const totalPages = Math.max(Math.ceil(total / safeLimit), 1);
+
+    return {
+      data,
+      meta: {
+        page: safePage,
+        limit: safeLimit,
+        total,
+        totalPages,
+      },
+    };
+  }
+
   async cancel(id: number, cancellationToken?: string, userId?: number): Promise<reservations> {
     return this.prisma.$transaction(async (tx) => {
       const reservation = await tx.reservations.findUnique({
