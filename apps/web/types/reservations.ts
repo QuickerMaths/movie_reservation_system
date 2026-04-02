@@ -1,3 +1,5 @@
+import { IPaginationMeta } from '@/types/pagination';
+
 export enum ReservationStatus {
   PENDING = 'PENDING',
   PAID = 'PAID',
@@ -16,14 +18,7 @@ export interface IReservation {
 
 export interface IPaginatedReservations {
   data: IReservation[];
-  meta: IReservationsPaginationMeta;
-}
-
-export interface IReservationsPaginationMeta {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
+  meta: IPaginationMeta;
 }
 
 export interface IReservationDetail {
