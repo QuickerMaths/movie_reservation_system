@@ -1,4 +1,4 @@
-import { IsInt } from 'class-validator';
+import { IsEnum, IsInt } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ReservationStatus } from '../../../generated/prisma/client';
 
@@ -7,7 +7,8 @@ export class CreatePaymentDto {
   @ApiProperty({ example: 1 })
   reservation_id: number;
 
-  @ApiProperty({ example: 'PAID' })
+  @IsEnum(ReservationStatus)
+  @ApiProperty({ example: ReservationStatus.PAID })
   result: ReservationStatus;
 
   @IsInt()
