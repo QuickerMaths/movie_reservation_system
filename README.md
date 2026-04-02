@@ -36,3 +36,7 @@ This will be my implementation of a movie reservation system inspired by the [ro
 ## Database Design
 
 ![ER Diagram](./images/movie_reservation_system_er_diagram.png)
+
+## Reservation flow
+
+![Reservation flowchart](./images/reservation_flowchart.png)
