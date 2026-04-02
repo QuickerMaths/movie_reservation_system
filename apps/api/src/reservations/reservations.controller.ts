@@ -1,9 +1,12 @@
 import {
+  DefaultValuePipe,
   Controller,
   Get,
   Patch,
   Post,
   Body,
+  ForbiddenException,
+  Query,
   Request,
   UseGuards,
   UseInterceptors,
@@ -21,6 +24,7 @@ import { ReservationEntity } from './entities/reservation.entity';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { ReservationDetailEntity } from './entities/reservation-paid.entity';
 import { EntityNotFoundException } from '../../exceptions/entity-not-found.exception';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 interface RequestWithUser extends ExpressRequest {
   user: users;
@@ -43,6 +47,54 @@ export class ReservationsController {
     const reservation = await this.reservationsService.create(createReservationDto, userId);
 
     return new ReservationEntity(reservation);
+  }
+
+  @Get('user/:userId')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({
+    schema: {
+      properties: {
+        data: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/ReservationEntity' },
+        },
+        meta: {
+          type: 'object',
+          properties: {
+            page: { type: 'number', example: 1 },
+            limit: { type: 'number', example: 10 },
+            total: { type: 'number', example: 42 },
+            totalPages: { type: 'number', example: 5 },
+          },
+        },
+      },
+    },
+  })
+  async findByUserId(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Request() req: RequestWithUser,
+  ): Promise<{
+    data: ReservationEntity[];
+    meta: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
+    if (req.user.user_id !== userId) {
+      throw new ForbiddenException('You are not allowed to access these reservations');
+    }
+
+    const reservations = await this.reservationsService.findByUserId(userId, page, limit);
+
+    return {
+      data: reservations.data.map((reservation) => new ReservationEntity(reservation)),
+      meta: reservations.meta,
+    };
   }
 
   @Get(':id')
@@ -71,6 +123,19 @@ export class ReservationsController {
     }
 
     return new ReservationDetailEntity(reservation);
+  }
+
+  @Patch(':id/cancel/me')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ type: ReservationEntity })
+  async cancelByIdAsAuthenticatedUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req: RequestWithUser,
+  ): Promise<ReservationEntity> {
+    const reservation = await this.reservationsService.cancel(id, undefined, req.user.user_id);
+
+    return new ReservationEntity(reservation);
   }
 
   @Patch(':id/cancel')
