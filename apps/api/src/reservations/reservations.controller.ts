@@ -48,7 +48,7 @@ export class ReservationsController {
   @Get(':id')
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOkResponse({ type: ReservationDetailEntity })
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<ReservationDetailEntity> {
+  async findOneById(@Param('id', ParseIntPipe) id: number): Promise<ReservationDetailEntity> {
     const reservation = await this.reservationsService.findOne(id);
 
     if (!reservation) {
@@ -58,11 +58,26 @@ export class ReservationsController {
     return new ReservationDetailEntity(reservation);
   }
 
+  @Get('cancel/:token')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOkResponse({ type: ReservationDetailEntity })
+  async findOneByCancellationToken(
+    @Param('token') token: string,
+  ): Promise<ReservationDetailEntity> {
+    const reservation = await this.reservationsService.findOneByCancellationToken(token);
+
+    if (!reservation) {
+      throw new EntityNotFoundException('Reservation for provided cancellation token', token);
+    }
+
+    return new ReservationDetailEntity(reservation);
+  }
+
   @Patch(':id/cancel')
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(OptionalJwtGuard)
   @ApiOkResponse({ type: ReservationEntity })
-  async cancel(
+  async cancelById(
     @Param('id', ParseIntPipe) id: number,
     @Body() cancelReservationDto: CancelReservationDto,
     @Request() req: RequestWithUser,
@@ -73,6 +88,15 @@ export class ReservationsController {
       cancelReservationDto.cancellation_token,
       userId,
     );
+
+    return new ReservationEntity(reservation);
+  }
+
+  @Patch('cancel/:token')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOkResponse({ type: ReservationEntity })
+  async cancelByToken(@Param('token') token: string): Promise<ReservationEntity> {
+    const reservation = await this.reservationsService.cancelByToken(token);
 
     return new ReservationEntity(reservation);
   }
