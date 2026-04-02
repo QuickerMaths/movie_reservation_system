@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  Query,
   UseInterceptors,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
@@ -17,6 +18,8 @@ import { ApiOkResponse } from '@nestjs/swagger';
 import { MovieGridItemEntity } from './entities/movie-grid-item.entity';
 import { MovieDetailEntity } from './entities/movie-detail.entity';
 import { EntityNotFoundException } from '../../exceptions/entity-not-found.exception';
+import { GetMoviesDto } from './dto/get-movies.dto';
+import { GetRecommendedMoviesDto } from './dto/get-recommended-movies.dto';
 
 @Controller('movies')
 export class MoviesController {
@@ -28,14 +31,34 @@ export class MoviesController {
     return this.moviesService.create(createMovieDto);
   }
 
-  // TODO: Implement pagination and filtering
   @Get()
-  @ApiOkResponse({ type: [MovieGridItemEntity] })
+  @ApiOkResponse({
+    schema: {
+      properties: {
+        data: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/MovieGridItemEntity' },
+        },
+        meta: {
+          type: 'object',
+          properties: {
+            page: { type: 'number', example: 1 },
+            limit: { type: 'number', example: 12 },
+            total: { type: 'number', example: 42 },
+            totalPages: { type: 'number', example: 4 },
+          },
+        },
+      },
+    },
+  })
   @UseInterceptors(ClassSerializerInterceptor)
-  async getMovieGrid() {
-    const movies = await this.moviesService.findAllMovieGridItems();
+  async getMovieGrid(@Query() query: GetMoviesDto) {
+    const movies = await this.moviesService.findAllMovieGridItems(query);
 
-    return movies.map((m) => new MovieGridItemEntity(m));
+    return {
+      data: movies.data.map((m) => new MovieGridItemEntity(m)),
+      meta: movies.meta,
+    };
   }
 
   @Get(':id')
@@ -52,12 +75,36 @@ export class MoviesController {
   }
 
   @Get(':id/recommended')
-  @ApiOkResponse({ type: [MovieGridItemEntity] })
+  @ApiOkResponse({
+    schema: {
+      properties: {
+        data: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/MovieGridItemEntity' },
+        },
+        meta: {
+          type: 'object',
+          properties: {
+            page: { type: 'number', example: 1 },
+            limit: { type: 'number', example: 8 },
+            total: { type: 'number', example: 12 },
+            totalPages: { type: 'number', example: 2 },
+          },
+        },
+      },
+    },
+  })
   @UseInterceptors(ClassSerializerInterceptor)
-  async getRecommendedMovies(@Param('id', ParseIntPipe) id: number) {
-    const recommendedMovies = await this.moviesService.findRecommendedMovies(id);
+  async getRecommendedMovies(
+    @Param('id', ParseIntPipe) id: number,
+    @Query() query: GetRecommendedMoviesDto,
+  ) {
+    const recommendedMovies = await this.moviesService.findRecommendedMovies(id, query);
 
-    return recommendedMovies.map((m) => new MovieGridItemEntity(m));
+    return {
+      data: recommendedMovies.data.map((m) => new MovieGridItemEntity(m)),
+      meta: recommendedMovies.meta,
+    };
   }
 
   @Patch(':id')
