@@ -110,6 +110,12 @@ export class ReservationDetailEntity {
   })
   totalPrice: number;
 
+  @ApiProperty({
+    example: '550e8400-e29b-41d4-a716-446655440000',
+    description: 'Cancellation token that can be used in guest cancellation flow',
+  })
+  cancellationToken: string;
+
   constructor(reservation: ReservationWithRelations) {
     const snapshot = toSeatSnapshotItems(reservation.seats_snapshot);
 
@@ -131,5 +137,6 @@ export class ReservationDetailEntity {
       },
     }));
     this.totalPrice = snapshot.reduce((acc, seat) => acc + seat.price, 0);
+    this.cancellationToken = reservation.cancellation_token;
   }
 }
