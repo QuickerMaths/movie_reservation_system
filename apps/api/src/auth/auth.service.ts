@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { users } from '../../generated/prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
@@ -14,11 +15,11 @@ export class AuthService {
 
   async validateUser(email: string, pass: string): Promise<UserEntity> {
     try {
-      const user: UserEntity = await this.usersService.findOne(email);
+      const user = await this.usersService.findOne(email);
       const isMatch = await bcrypt.compare(pass, user.password_hash);
 
       if (isMatch) {
-        return user;
+        return new UserEntity(user);
       }
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -36,7 +37,7 @@ export class AuthService {
     };
   }
 
-  async register(createUserDto: CreateRegularUserDto): Promise<UserEntity> {
+  async register(createUserDto: CreateRegularUserDto): Promise<users> {
     return this.usersService.createRegularUser(createUserDto);
   }
 }
