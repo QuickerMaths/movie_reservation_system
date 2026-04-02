@@ -37,7 +37,6 @@ export default function PaymentSimulation({ reservationId }: PaymentSimulationPr
           className='w-full bg-green-600 hover:bg-green-500 h-12 cursor-pointer'
         >
           <CircleDollarSignIcon className='mr-2 h-4 w-4' />
-          {isPending ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : null}
           Simulate Success (PAID)
         </Button>
 
@@ -62,7 +61,8 @@ export default function PaymentSimulation({ reservationId }: PaymentSimulationPr
         </Button>
 
         {isPending && (
-          <p className='text-center text-sm text-gray-500 animate-pulse mt-4'>
+          <p className='flex items-center justify-center text-center text-sm text-gray-500 animate-pulse mt-4'>
+            <Loader2 />
             Communicating with bank... (2s delay)
           </p>
         )}
