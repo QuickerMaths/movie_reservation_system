@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../../users/users.service';
-import { UserEntity } from '../../users/entities/user.entity';
+import { users } from '../../../generated/prisma/client';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -23,8 +23,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: { sub: number; email: string }): Promise<UserEntity> {
-    const user: UserEntity = await this.UsersService.findOne(payload.email);
+  async validate(payload: { sub: number; email: string }): Promise<users> {
+    const user = await this.UsersService.findOne(payload.email);
 
     if (!user) {
       throw new UnauthorizedException('User no longer exists');

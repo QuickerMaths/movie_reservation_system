@@ -1,5 +1,6 @@
 import { IUserProfile } from '@/types/users';
 import { Ticket, User as UserIcon } from 'lucide-react';
+import UsersReservations from './UsersReservations';
 
 interface RegularDashboardProps {
   user: IUserProfile;
@@ -65,12 +66,7 @@ export function RegularDashboard({ user }: RegularDashboardProps) {
                 <Ticket className='h-4 w-4' /> My Reservations
               </h3>
             </div>
-
-            {/* Empty State */}
-            <div className='flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-12 text-center text-muted-foreground'>
-              <Ticket className='mb-4 h-10 w-10 opacity-20' />
-              <p>You haven't booked any movies yet.</p>
-            </div>
+            <UsersReservations userId={user.id} />
           </div>
         </div>
       </div>

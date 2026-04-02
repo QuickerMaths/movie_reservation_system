@@ -6,32 +6,34 @@ import MovieRecommendation from '@/components/MovieRecommendation';
 import { fetchShowsByMovieId } from '@/api/shows';
 import ShowsContainer from '@/components/ShowsContainer';
 
-export default async function MoviePage({ params }: { params: { id: string } }) {
-  const { id } = await params;
+export default async function MoviePage({ params }: { params: { movieId: string } }) {
+  const { movieId } = await params;
   const queryClient = getQueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: ['movie', id],
-    queryFn: async () => await fetchMovieDetailsById(id),
+    queryKey: ['movie', movieId],
+    queryFn: async () => await fetchMovieDetailsById(movieId),
   });
 
   await queryClient.prefetchQuery({
-    queryKey: ['recommended-movies', id],
-    queryFn: async () => await fetchRecommendedMovies(id),
+    queryKey: ['recommended-movies', movieId],
+    queryFn: async () => await fetchRecommendedMovies(movieId),
   });
 
   await queryClient.prefetchQuery({
-    queryKey: ['shows', id, new Date().toISOString().split('T')[0]],
-    queryFn: async () => fetchShowsByMovieId(+id, new Date().toISOString().split('T')[0]),
+    queryKey: ['shows', movieId, new Date().toISOString().split('T')[0]],
+    queryFn: async () => fetchShowsByMovieId(+movieId, new Date().toISOString().split('T')[0]),
   });
 
   return (
     <main className='min-h-screen bg-black text-white p-8 md:p-16'>
       <div className='grid grid-cols-1 md:grid-cols-12 gap-8 mb-16'>
         <HydrationBoundary state={dehydrate(queryClient)}>
-          <MovieDetails id={id} />
-          <ShowsContainer movieId={id} />
-          <MovieRecommendation id={id} />
+          <MovieDetails id={movieId} />
+          <div className='col-span-1 mt-10 md:col-span-4 md:mt-0'>
+            <ShowsContainer movieId={movieId} />
+          </div>
+          <MovieRecommendation id={movieId} />
         </HydrationBoundary>
       </div>
     </main>

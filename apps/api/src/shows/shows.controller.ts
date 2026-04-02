@@ -12,6 +12,7 @@ import { ApiOkResponse, ApiQuery } from '@nestjs/swagger';
 import { ShowsMovieDetailEntity } from './entities/shows-movie-detail.entity';
 import { GetShowsDto } from './dto/get-shows-dto';
 import { EntityNotFoundException } from '../../exceptions/entity-not-found.exception';
+import { SeatWithStatusEntity } from './entities/seat-with-status.entity';
 
 @Controller('shows')
 export class ShowsController {
@@ -24,7 +25,7 @@ export class ShowsController {
   async getShowDetailsById(
     @Param('movieId', ParseIntPipe) movieId: number,
     @Query() query: GetShowsDto,
-  ) {
+  ): Promise<ShowsMovieDetailEntity[]> {
     const shows = await this.showsService.findShowsByMovieId(movieId, query);
 
     if (!shows) {
@@ -32,5 +33,15 @@ export class ShowsController {
     }
 
     return shows.map((s) => new ShowsMovieDetailEntity(s));
+  }
+
+  @Get(':showId/seats')
+  @ApiOkResponse({ type: SeatWithStatusEntity, isArray: true })
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getSeats(@Param('showId', ParseIntPipe) showId: number) {
+    console.log(showId);
+    const seats = await this.showsService.getShowSeats(showId);
+
+    return seats.map((seat) => new SeatWithStatusEntity(seat));
   }
 }

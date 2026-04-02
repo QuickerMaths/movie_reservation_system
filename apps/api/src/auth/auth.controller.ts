@@ -52,7 +52,9 @@ export class AuthController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOkResponse({ type: UserEntity })
   async register(@Body() createUserDto: CreateRegularUserDto): Promise<UserEntity> {
-    return this.authService.register(createUserDto);
+    const user = await this.authService.register(createUserDto);
+
+    return new UserEntity(user);
   }
 
   @Post('logout')

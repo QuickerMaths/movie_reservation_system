@@ -1,31 +1,53 @@
-import { Exclude, Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UserEntity {
-  @Expose({ name: 'id' })
-  @ApiProperty({ example: 1 })
-  user_id: number;
+type UserEntitySource = {
+  user_id?: number;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  password_hash?: string;
+  created_at?: Date | null;
+};
 
-  @Expose()
+export class UserEntity {
+  @ApiProperty({ example: 1 })
+  id: number;
+
   @ApiProperty({ example: 'john.doe@example.com' })
   email: string;
 
-  @Expose({ name: 'firstName' })
   @ApiProperty({ example: 'John' })
-  first_name: string;
+  firstName: string;
 
-  @Expose({ name: 'lastName' })
   @ApiProperty({ example: 'Doe' })
-  last_name: string;
+  lastName: string;
 
-  @Exclude()
+  // Kept for auth flow; defined as non-enumerable in constructor so it is not serialized.
   password_hash: string;
 
-  @Expose({ name: 'createdAt' })
-  @ApiProperty()
-  created_at: Date | null;
+  // Backward-compatible alias used internally by auth/guards/controllers.
+  user_id: number;
 
-  constructor(partial: Partial<UserEntity>) {
-    Object.assign(this, partial);
+  @ApiProperty()
+  createdAt: Date | null;
+
+  constructor(source: UserEntitySource) {
+    this.id = source.user_id ?? 0;
+    this.email = source.email ?? '';
+    this.firstName = source.first_name ?? '';
+    this.lastName = source.last_name ?? '';
+    this.createdAt = source.created_at ?? null;
+
+    Object.defineProperty(this, 'password_hash', {
+      value: source.password_hash ?? '',
+      enumerable: false,
+      writable: false,
+    });
+
+    Object.defineProperty(this, 'user_id', {
+      value: this.id,
+      enumerable: false,
+      writable: false,
+    });
   }
 }

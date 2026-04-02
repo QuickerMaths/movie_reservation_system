@@ -43,6 +43,8 @@ export class UsersController {
     @Request() req: RequestWithUser,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserEntity> {
-    return this.usersService.updateRegularUser(req.user.user_id, updateUserDto);
+    const user = await this.usersService.updateRegularUser(req.user.user_id, updateUserDto);
+
+    return new UserEntity(user);
   }
 }

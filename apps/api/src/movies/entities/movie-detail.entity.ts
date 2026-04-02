@@ -1,17 +1,24 @@
-import { Exclude, Expose, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { Decimal } from '@prisma/client/runtime/client';
+
+type MovieDetailSource = {
+  movie_id: number;
+  title: string;
+  description: string | null;
+  poster_image_url: string | null;
+  cached_rating: unknown;
+  duration_minutes: number;
+  last_show_date: Date | null;
+  is_recommended: boolean | null;
+  movie_genres?: { name: string } | null;
+};
 
 export class MovieDetailEntity {
-  @Expose({ name: 'id' })
-  @ApiProperty({ name: 'id', example: 1, description: 'Unique identifier of the movie' })
-  movie_id: number;
+  @ApiProperty({ example: 1, description: 'Unique identifier of the movie' })
+  id: number;
 
-  @Expose()
   @ApiProperty({ example: 'The Matrix', description: 'Title of the movie' })
   title: string;
 
-  @Expose()
   @ApiProperty({
     example:
       'A computer hacker learns about the true nature of his reality and his role in the war against its controllers.',
@@ -19,67 +26,49 @@ export class MovieDetailEntity {
   })
   description: string;
 
-  @Expose({ name: 'posterImageUrl' })
   @ApiProperty({
-    name: 'posterImageUrl',
     example: 'https://path-to-image.com',
     description: 'URL of the poster image',
     required: false,
   })
-  poster_image_url: string | null;
+  posterImageUrl: string | null;
 
-  @Expose({ name: 'cachedRating' })
   @ApiProperty({
-    name: 'cachedRating',
     example: 4.7,
     description: 'Cached average rating of the movie',
   })
-  @Transform(({ value }) => (value as Decimal).toNumber())
-  cached_rating: number | Decimal;
+  cachedRating: number;
 
-  @Expose({ name: 'durationMinutes' })
-  @ApiProperty({ name: 'durationMinutes', example: 136, description: 'Duration in minutes' })
-  duration_minutes: number;
+  @ApiProperty({ example: 136, description: 'Duration in minutes' })
+  durationMinutes: number;
 
-  @Expose({ name: 'lastShowDate' })
   @ApiProperty({
-    name: 'lastShowDate',
     example: '2024-12-31T23:59:59Z',
     description: 'Last show date',
   })
-  last_show_date: Date | null;
+  lastShowDate: Date | null;
 
-  @Expose({ name: 'isRecommended' })
   @ApiProperty({
-    name: 'isRecommended',
     example: true,
     description: 'Indicates if the movie is recommended',
   })
-  is_recommended: boolean;
+  isRecommended: boolean;
 
-  @Expose({ name: 'genre' })
   @ApiProperty({
     example: 'Science Fiction',
     description: 'Genre of the movie',
   })
-  @Transform(({ obj }: { obj: { movie_genres?: { name: string } | null } }) => {
-    if (!obj.movie_genres) return null;
-
-    return obj.movie_genres.name;
-  })
   genre: string;
 
-  @Exclude()
-  movie_genres?: {
-    genre_id: number;
-    name: string;
-    parent_genre_id: number | null;
-  };
-
-  @Exclude()
-  genre_id: number;
-
-  constructor(partial: Partial<MovieDetailEntity>) {
-    Object.assign(this, partial);
+  constructor(movie: MovieDetailSource) {
+    this.id = movie.movie_id;
+    this.title = movie.title;
+    this.description = movie.description ?? '';
+    this.posterImageUrl = movie.poster_image_url ?? null;
+    this.cachedRating = Number(movie.cached_rating ?? 0);
+    this.durationMinutes = movie.duration_minutes;
+    this.lastShowDate = movie.last_show_date ?? null;
+    this.isRecommended = Boolean(movie.is_recommended);
+    this.genre = movie.movie_genres?.name ?? '';
   }
 }

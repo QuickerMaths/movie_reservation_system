@@ -1,75 +1,44 @@
-import { Exclude, Expose, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { TUserWithRoles } from '../../../types/prisma/users-queries.types';
 
 export class UserWithRoleEntityEntity {
-  @Expose({ name: 'id' })
   @ApiProperty({ example: 1 })
-  user_id: number;
+  id: number;
 
-  @Expose()
   @ApiProperty({ example: 'john.doe@example.com' })
   email: string;
 
-  @Expose({ name: 'firstName' })
   @ApiProperty({ example: 'John' })
-  first_name: string;
+  firstName: string;
 
-  @Expose({ name: 'lastName' })
   @ApiProperty({ example: 'Doe' })
-  last_name: string;
+  lastName: string;
 
-  @Expose({ name: 'role' })
-  @Transform(({ obj }: { obj: TUserWithRoles }) => {
-    if (!obj.users_roles || obj.users_roles.length === 0) return null;
-
-    return obj.users_roles[0].roles.name;
-  })
   @ApiProperty({ example: 'regular' })
   role: string;
 
-  @Expose({ name: 'phoneNumber' })
-  @Transform(({ obj }: { obj: TUserWithRoles }) => {
-    if (!obj.regular_user_profiles) return null;
-
-    return obj.regular_user_profiles.phone_number;
-  })
   @ApiProperty({ example: '+1234567890' })
-  phone_number: string | null;
+  phoneNumber: string | null;
 
-  @Expose({ name: 'newsletterOptIn' })
-  @Transform(({ obj }: { obj: TUserWithRoles }) => {
-    if (!obj.regular_user_profiles) return null;
-
-    return obj.regular_user_profiles.newsletter_opt_in;
-  })
   @ApiProperty({ example: true })
-  newsletter_opt_in: boolean | null;
+  newsletterOptIn: boolean | null;
 
   // TODO: change to genre object later
-  @Expose({ name: 'preferredGenreId' })
-  @Transform(({ obj }: { obj: TUserWithRoles }) => {
-    if (!obj.regular_user_profiles) return null;
-
-    return obj.regular_user_profiles.preferred_genre_id;
-  })
   @ApiProperty({ example: 1 })
-  preferred_genre_id: number | null;
+  preferredGenreId: number | null;
 
-  @Exclude()
-  password_hash: string;
-
-  @Exclude()
-  regular_user_profiles: object;
-
-  @Exclude()
-  users_roles: object;
-
-  @Expose({ name: 'createdAt' })
   @ApiProperty()
-  created_at: Date | null;
+  createdAt: Date | null;
 
-  constructor(partial: Partial<UserWithRoleEntityEntity>) {
-    Object.assign(this, partial);
+  constructor(source: TUserWithRoles) {
+    this.id = source.user_id;
+    this.email = source.email;
+    this.firstName = source.first_name;
+    this.lastName = source.last_name;
+    this.role = source.users_roles?.[0]?.roles?.name ?? '';
+    this.phoneNumber = source.regular_user_profiles?.phone_number ?? null;
+    this.newsletterOptIn = source.regular_user_profiles?.newsletter_opt_in ?? null;
+    this.preferredGenreId = source.regular_user_profiles?.preferred_genre_id ?? null;
+    this.createdAt = source.created_at ?? null;
   }
 }
