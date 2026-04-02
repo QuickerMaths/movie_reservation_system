@@ -1,8 +1,9 @@
 import { apiFetch } from '@/lib/utils';
-import { TPaymentStatus, TPaymentRequest } from '@/types/payments';
+import { TPaymentRequest } from '@/types/payments';
+import { ReservationStatus } from '@/types/reservations';
 
-export async function processPayment(data: TPaymentRequest): Promise<TPaymentStatus> {
-  return apiFetch<TPaymentStatus>('/payments', {
+export async function processPayment(data: TPaymentRequest): Promise<ReservationStatus> {
+  return apiFetch<ReservationStatus>('/payments', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
