@@ -1,7 +1,5 @@
-import { Exclude, Expose, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { Prisma } from '../../../generated/prisma/client';
-import { Decimal } from '@prisma/client/runtime/client';
 
 export enum SeatStatus {
   AVAILABLE = 'AVAILABLE',
@@ -22,58 +20,36 @@ export type SeatWithRelations = Prisma.seatsGetPayload<{
 }>;
 
 export class SeatWithStatusEntity {
-  @Expose({ name: 'id' })
-  @ApiProperty({ name: 'id', example: 1, description: 'Unique identifier of the seat' })
-  seat_id: number;
+  @ApiProperty({ example: 1, description: 'Unique identifier of the seat' })
+  id: number;
 
-  @Expose({ name: 'row' })
-  @ApiProperty({ name: 'row', example: 'A', description: 'Row label' })
-  row_label: string;
+  @ApiProperty({ example: 'A', description: 'Row label' })
+  row: string;
 
-  @Expose({ name: 'seatNumber' })
-  @ApiProperty({ name: 'seatNumber', example: 1, description: 'Seat number' })
-  seat_number: number;
+  @ApiProperty({ example: 1, description: 'Seat number' })
+  seatNumber: number;
 
-  @Expose({ name: 'type' })
-  @ApiProperty({ name: 'type', example: 'VIP', description: 'Type of the seat' })
-  @Transform(({ obj }: { obj: SeatWithRelations }) => {
-    return obj.seat_types.name;
-  })
+  @ApiProperty({ example: 'VIP', description: 'Type of the seat' })
   type: string;
 
-  @Expose({ name: 'price' })
-  @ApiProperty({ name: 'price', example: 20.0, description: 'Price of the seat' })
-  @Transform(({ obj }: { obj: SeatWithRelations }) => {
-    return obj.seat_types.default_price.toNumber();
-  })
-  price: number | Decimal;
+  @ApiProperty({ example: 20.0, description: 'Price of the seat' })
+  price: number;
 
-  @Expose({ name: 'status' })
   @ApiProperty({ enum: SeatStatus })
-  @ApiProperty({ name: 'status', example: 'AVAILABLE', description: 'Status of the seat' })
-  @Transform(({ obj }: { obj: SeatWithRelations }) => {
-    const activeTicket = obj.tickets?.[0];
-
-    if (!activeTicket) return SeatStatus.AVAILABLE;
-    return activeTicket.reservations?.status === 'CANCELLED'
-      ? SeatStatus.AVAILABLE
-      : SeatStatus.TAKEN;
-  })
+  @ApiProperty({ example: 'AVAILABLE', description: 'Status of the seat' })
   status: SeatStatus;
 
-  @Exclude()
-  seat_type_id: number;
+  constructor(seat: SeatWithRelations) {
+    const activeTicket = seat.tickets?.[0];
 
-  @Exclude()
-  movie_room_id: number;
-
-  @Exclude()
-  seat_types: any;
-
-  @Exclude()
-  tickets: any[];
-
-  constructor(partial: Partial<SeatWithStatusEntity>) {
-    Object.assign(this, partial);
+    this.id = seat.seat_id;
+    this.row = seat.row_label;
+    this.seatNumber = seat.seat_number;
+    this.type = seat.seat_types?.name ?? '';
+    this.price = Number(seat.seat_types?.default_price ?? 0);
+    this.status =
+      !activeTicket || activeTicket.reservations?.status === 'CANCELLED'
+        ? SeatStatus.AVAILABLE
+        : SeatStatus.TAKEN;
   }
 }
