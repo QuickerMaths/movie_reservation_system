@@ -22,6 +22,20 @@ export type SeatSnapshotItem = {
 export class ReservationsService {
   constructor(private prisma: PrismaService) {}
 
+  private assertCancellationWindow(showStartTimestamp?: Date | null): void {
+    if (!showStartTimestamp) {
+      return;
+    }
+
+    const latestCancellationTime = new Date(showStartTimestamp.getTime() - 24 * 60 * 60 * 1000);
+
+    if (new Date() > latestCancellationTime) {
+      throw new ConflictException(
+        'Reservation can be cancelled only at least 24 hours before the show starts',
+      );
+    }
+  }
+
   private mapSeatsToSnapshot(
     seats: Array<{
       seat_id: number;
@@ -123,11 +137,36 @@ export class ReservationsService {
     });
   }
 
+  async findOneByCancellationToken(token: string): Promise<ReservationWithRelations | null> {
+    return this.prisma.reservations.findUnique({
+      where: { cancellation_token: token },
+      include: {
+        users: true,
+        shows: {
+          include: {
+            movies: true,
+            movie_rooms: true,
+          },
+        },
+        tickets: {
+          include: {
+            seats: {
+              include: {
+                seat_types: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
   async cancel(id: number, cancellationToken?: string, userId?: number): Promise<reservations> {
     return this.prisma.$transaction(async (tx) => {
       const reservation = await tx.reservations.findUnique({
         where: { reservation_id: id },
         include: {
+          shows: true,
           tickets: {
             include: {
               seats: {
@@ -142,9 +181,14 @@ export class ReservationsService {
         throw new NotFoundException('Reservation not found');
       }
 
-      if (reservation.status !== ReservationStatus.PENDING) {
-        throw new ConflictException('Only PENDING reservations can be cancelled');
+      if (
+        reservation.status !== ReservationStatus.PENDING &&
+        reservation.status !== ReservationStatus.PAID
+      ) {
+        throw new ConflictException('Only PENDING or PAID reservations can be cancelled');
       }
+
+      this.assertCancellationWindow(reservation.shows?.start_timestamp);
 
       const isOwner = Boolean(userId && reservation.user_id === userId);
       const hasValidToken =
@@ -180,5 +224,18 @@ export class ReservationsService {
         where: { reservation_id: id },
       });
     });
+  }
+
+  async cancelByToken(token: string): Promise<reservations> {
+    const reservation = await this.prisma.reservations.findUnique({
+      where: { cancellation_token: token },
+      select: { reservation_id: true },
+    });
+
+    if (!reservation) {
+      throw new NotFoundException('Reservation not found');
+    }
+
+    return this.cancel(reservation.reservation_id, token);
   }
 }
