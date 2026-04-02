@@ -8,7 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { ReservationStatus } from '../../generated/prisma/client';
 import { reservations } from '../../generated/prisma/client';
-import { ReservationWithRelations } from './entities/reservation-paid.entity';
+import { ReservationWithRelations } from './entities/reservation-with-relations.entity';
 
 export type SeatSnapshotItem = {
   seat_id: number;

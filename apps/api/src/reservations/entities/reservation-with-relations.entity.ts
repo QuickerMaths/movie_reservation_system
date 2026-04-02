@@ -122,7 +122,7 @@ export class ReservationDetailEntity {
     this.id = reservation.reservation_id;
     this.reservationDate = reservation.reservation_date?.toISOString() ?? '';
     this.status = reservation.status;
-    this.email = reservation.users?.email ?? reservation.guest_emial ?? undefined; // Note: 'guest_emial' typo in original code
+    this.email = reservation.users?.email ?? reservation.guest_emial ?? undefined;
     this.movieTitle = reservation.shows?.movies?.title ?? '';
     this.posterImageUrl = reservation.shows?.movies?.poster_image_url ?? null;
     this.roomNumber = reservation.shows?.movie_rooms?.room_number ?? '';

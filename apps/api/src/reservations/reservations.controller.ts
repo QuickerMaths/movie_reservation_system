@@ -22,7 +22,7 @@ import { Request as ExpressRequest } from 'express';
 import { users } from '../../generated/prisma/client';
 import { ReservationEntity } from './entities/reservation.entity';
 import { ApiOkResponse } from '@nestjs/swagger';
-import { ReservationDetailEntity } from './entities/reservation-paid.entity';
+import { ReservationDetailEntity } from './entities/reservation-with-relations.entity';
 import { EntityNotFoundException } from '../../exceptions/entity-not-found.exception';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
