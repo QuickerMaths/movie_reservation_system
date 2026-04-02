@@ -18,6 +18,7 @@ export interface IReservationDetail {
   id: number;
   reservationDate: string;
   status: ReservationStatus;
+  cancellationToken: string;
   email: string | undefined;
   movieTitle: string;
   posterImageUrl: string | null;
