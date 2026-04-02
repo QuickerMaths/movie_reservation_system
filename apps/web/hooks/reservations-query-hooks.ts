@@ -4,6 +4,8 @@ import {
   createReservation,
   getReservationById,
   getReservationByToken,
+  getReservationsByUserId,
+  cancelReservationLoggedUser,
 } from '@/api/reservations';
 import { ReservationsSchema } from '@/schemas/reservations.schema';
 import { useRouter } from 'next/navigation';
@@ -17,10 +19,9 @@ export const useCreateReservation = () => {
       return await createReservation(payload);
     },
     onSuccess: (reservation, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['userReservations'] });
       queryClient.invalidateQueries({ queryKey: ['showsSeats', variables.show_id] });
 
-      console.log(reservation);
-      //TODO: push to payment section
       router.push(`/reservation/${reservation.id}/payment`);
     },
   });
@@ -48,9 +49,31 @@ export const useCancelReservationByToken = () => {
 
   return useMutation({
     mutationFn: (token: string) => cancelReservationByToken(token),
-    onSuccess: (_, token) => {
+    onSuccess: (reservation, token) => {
       queryClient.invalidateQueries({ queryKey: ['reservationByToken', token] });
+      queryClient.invalidateQueries({ queryKey: ['showsSeats', reservation.showId] });
     },
   });
 };
 
+export const useGetReservationsByUserIdQuery = (userId?: number, page = 1, limit = 10) => {
+  return useQuery({
+    queryKey: ['userReservations', userId, page, limit],
+    queryFn: () => getReservationsByUserId(userId as number, page, limit),
+    staleTime: 60 * 1000,
+    enabled: Boolean(userId),
+  });
+};
+
+export const useCancelReservationLoggedUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (reservationId: number) => cancelReservationLoggedUser(reservationId),
+    onSuccess: (reservation, reservationId) => {
+      queryClient.invalidateQueries({ queryKey: ['userReservations'] });
+      queryClient.invalidateQueries({ queryKey: ['showsSeats', reservation.showId] });
+      queryClient.invalidateQueries({ queryKey: ['reservation', reservationId.toString()] });
+    },
+  });
+};
