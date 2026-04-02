@@ -16,7 +16,6 @@ export class CreateReservationDto {
   seat_ids: number[];
 
   @IsOptional()
-  @IsEmail()
   @ApiProperty({ example: 'john.doe@example.com' })
   guest_email?: string;
 }
