@@ -5,10 +5,11 @@ import { getQueryClient } from '@/providers/get-query-client';
 
 export default async function MoviesPage() {
   const queryClient = getQueryClient();
+  const moviesQuery = { page: 1, limit: 12 };
 
   await queryClient.prefetchQuery({
-    queryKey: ['movies'],
-    queryFn: fetchMovies,
+    queryKey: ['movies', moviesQuery],
+    queryFn: () => fetchMovies(moviesQuery),
   });
 
   return (

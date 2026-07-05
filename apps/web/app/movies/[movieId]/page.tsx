@@ -9,6 +9,7 @@ import ShowsContainer from '@/components/ShowsContainer';
 export default async function MoviePage({ params }: { params: { movieId: string } }) {
   const { movieId } = await params;
   const queryClient = getQueryClient();
+  const recommendedQuery = { page: 1, limit: 8 };
 
   await queryClient.prefetchQuery({
     queryKey: ['movie', movieId],
@@ -16,8 +17,8 @@ export default async function MoviePage({ params }: { params: { movieId: string 
   });
 
   await queryClient.prefetchQuery({
-    queryKey: ['recommended-movies', movieId],
-    queryFn: async () => await fetchRecommendedMovies(movieId),
+    queryKey: ['recommended-movies', movieId, recommendedQuery],
+    queryFn: async () => await fetchRecommendedMovies(movieId, recommendedQuery),
   });
 
   await queryClient.prefetchQuery({
