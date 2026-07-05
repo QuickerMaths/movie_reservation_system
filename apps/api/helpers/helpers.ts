@@ -25,6 +25,15 @@ export const toOptionalNumber = ({ value }: { value: unknown }) => {
   return Number(value);
 };
 
+export const toTrimmedString = ({ value }: { value: unknown }) => {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  const trimmed = value.trim();
+  return trimmed === '' ? undefined : trimmed;
+};
+
 export const toOptionalBoolean = ({ value }: { value: unknown }) => {
   if (value === undefined || value === null || value === '') {
     return undefined;
