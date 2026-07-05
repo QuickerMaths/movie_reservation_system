@@ -46,3 +46,15 @@ postgres_data/
 *.pem
 
 apps/api/generated/prisma
+
+.claude
+CLAUDE.md
+AGENTS.md
+
+# graphify generated knowledge graph (regenerated via `graphify update .`)
+graphify-out/
+
+# local working notes / drafts
+issue.md
+issue-admin-capabilities.md
+PR_DESCRIPTION.md

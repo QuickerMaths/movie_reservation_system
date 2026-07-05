@@ -1,5 +1,4 @@
 import {
-  DefaultValuePipe,
   Controller,
   Get,
   Patch,
@@ -25,6 +24,7 @@ import { ApiOkResponse } from '@nestjs/swagger';
 import { ReservationDetailEntity } from './entities/reservation-with-relations.entity';
 import { EntityNotFoundException } from '../../exceptions/entity-not-found.exception';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { GetUserReservationsDto } from './dto/get-user-reservations.dto';
 
 interface RequestWithUser extends ExpressRequest {
   user: users;
@@ -73,8 +73,7 @@ export class ReservationsController {
   })
   async findByUserId(
     @Param('userId', ParseIntPipe) userId: number,
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query() query: GetUserReservationsDto,
     @Request() req: RequestWithUser,
   ): Promise<{
     data: ReservationEntity[];
@@ -89,7 +88,7 @@ export class ReservationsController {
       throw new ForbiddenException('You are not allowed to access these reservations');
     }
 
-    const reservations = await this.reservationsService.findByUserId(userId, page, limit);
+    const reservations = await this.reservationsService.findByUserId(userId, query);
 
     return {
       data: reservations.data.map((reservation) => new ReservationEntity(reservation)),

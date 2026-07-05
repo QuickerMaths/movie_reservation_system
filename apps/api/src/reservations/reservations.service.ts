@@ -9,6 +9,8 @@ import { CreateReservationDto } from './dto/create-reservation.dto';
 import { ReservationStatus } from '../../generated/prisma/client';
 import { reservations } from '../../generated/prisma/client';
 import { ReservationWithRelations } from './entities/reservation-with-relations.entity';
+import { GetUserReservationsDto } from './dto/get-user-reservations.dto';
+import { Prisma } from '../../generated/prisma/client';
 
 export type SeatSnapshotItem = {
   seat_id: number;
@@ -163,8 +165,7 @@ export class ReservationsService {
 
   async findByUserId(
     userId: number,
-    page = 1,
-    limit = 10,
+    query: GetUserReservationsDto,
   ): Promise<{
     data: reservations[];
     meta: {
@@ -174,23 +175,40 @@ export class ReservationsService {
       totalPages: number;
     };
   }> {
-    const safePage = Math.max(page, 1);
-    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const safePage = Math.max(query.page ?? 1, 1);
+    const safeLimit = Math.min(Math.max(query.limit ?? 10, 1), 100);
     const skip = (safePage - 1) * safeLimit;
+
+    const where: Prisma.reservationsWhereInput = {
+      user_id: userId,
+      ...(query.status ? { status: query.status } : {}),
+      ...((query.dateFrom || query.dateTo) && {
+        reservation_date: {
+          ...(query.dateFrom ? { gte: new Date(query.dateFrom) } : {}),
+          ...(query.dateTo ? { lte: new Date(query.dateTo) } : {}),
+        },
+      }),
+    };
+
+    const orderByMap: Record<
+      NonNullable<GetUserReservationsDto['sortBy']>,
+      Prisma.reservationsOrderByWithRelationInput
+    > = {
+      reservationDate: { reservation_date: query.sortOrder ?? 'desc' },
+      status: { status: query.sortOrder ?? 'desc' },
+    };
+
+    const orderBy = query.sortBy ? orderByMap[query.sortBy] : { reservation_date: 'desc' as const };
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.reservations.findMany({
-        where: { user_id: userId },
-        orderBy: { reservation_date: 'desc' },
+        where,
+        orderBy,
         skip,
         take: safeLimit,
       }),
-      this.prisma.reservations.count({
-        where: { user_id: userId },
-      }),
+      this.prisma.reservations.count({ where }),
     ]);
-
-    const totalPages = Math.max(Math.ceil(total / safeLimit), 1);
 
     return {
       data,
@@ -198,7 +216,7 @@ export class ReservationsService {
         page: safePage,
         limit: safeLimit,
         total,
-        totalPages,
+        totalPages: Math.max(Math.ceil(total / safeLimit), 1),
       },
     };
   }
