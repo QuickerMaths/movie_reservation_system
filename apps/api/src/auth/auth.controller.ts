@@ -69,6 +69,6 @@ export class AuthController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOkResponse({ type: UserEntity })
   getProfile(@Request() req: RequestWithUser): UserEntity {
-    return req.user;
+    return new UserEntity(req.user);
   }
 }
