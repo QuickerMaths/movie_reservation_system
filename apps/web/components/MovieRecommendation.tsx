@@ -139,7 +139,7 @@ export default function MovieRecommendation({ id }: { id: string }) {
         </div>
       </form>
 
-      <div className='grid gap-8'>
+      <div className='flex justify-between items-center '>
         {recommendedMovies.map((movie) => (
           <MoviePreview key={movie.id} movie={movie} size={'sm'} />
         ))}
@@ -151,7 +151,9 @@ export default function MovieRecommendation({ id }: { id: string }) {
         totalItems={recommendedMoviesResponse.meta.total}
         onPreviousAction={() => setPage((prev) => Math.max(prev - 1, 1))}
         onNextAction={() =>
-          setPage((prev) => Math.min(prev + 1, Math.max(recommendedMoviesResponse.meta.totalPages, 1)))
+          setPage((prev) =>
+            Math.min(prev + 1, Math.max(recommendedMoviesResponse.meta.totalPages, 1)),
+          )
         }
         isLoading={isFetching}
       />
