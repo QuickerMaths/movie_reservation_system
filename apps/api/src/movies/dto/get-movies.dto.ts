@@ -11,7 +11,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-import { toOptionalNumber, toOptionalBoolean } from '../../../helpers/helpers';
+import { toOptionalNumber, toOptionalBoolean, toTrimmedString } from '../../../helpers/helpers';
 
 export const movieSortFields = [
   'title',
@@ -47,6 +47,7 @@ export class GetMoviesDto {
 
   @ApiPropertyOptional({ example: 'matrix', description: 'Case-insensitive search by movie title' })
   @IsOptional()
+  @Transform(toTrimmedString)
   @IsString()
   @MaxLength(100)
   q?: string;
